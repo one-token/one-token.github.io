@@ -254,7 +254,7 @@ if(true){
   	repo: 'one-token.github.io',
   	owner: 'one-token',
   	admin: ['one-token'],
-  	id: md5(window.location.pathname),
+  	id: md5(location.href),
   	distractionFreeMode: 'true'
 })
 gitalk.render('gitalk-container') 
