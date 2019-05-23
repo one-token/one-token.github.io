@@ -339,6 +339,7 @@
 
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.css">
 <script src="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js"></script>
+<script src="https://cdn.bootcss.com/blueimp-md5/2.10.0/js/md5.min.js"></script>
 <script type="text/javascript">
 
 if(true){
@@ -348,7 +349,7 @@ if(true){
   	repo: 'one-token.github.io',
   	owner: 'one-token',
   	admin: ['one-token'],
-  	id: md5(location.pathname),
+  	id: md5(window.location.pathname),
   	distractionFreeMode: 'true'
 })
 gitalk.render('gitalk-container') 
