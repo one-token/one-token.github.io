@@ -17,7 +17,7 @@
 <meta property="og:description" content="一. 搭建步骤基础环境  node   git  1.1 注册账号注册一个Github账号,新建一个用户名.github.io的项目 并clone到本地. https://i.imgur.com/BxS9Xhy.png 1.2 安装Hexonpm install -g hexo-cli 1.3 新建站点初始化hexo文件 hexo init [folder] cd &amp;lt;folder&amp;gt; n">
 <meta property="og:locale" content="zh-CN">
 <meta property="og:image" content="https://i.imgur.com/BxS9Xhy.png">
-<meta property="og:updated_time" content="2019-05-24T16:04:36.935Z">
+<meta property="og:updated_time" content="2019-05-24T16:29:45.943Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Hexo搭建github个人博客">
 <meta name="twitter:description" content="一. 搭建步骤基础环境  node   git  1.1 注册账号注册一个Github账号,新建一个用户名.github.io的项目 并clone到本地. https://i.imgur.com/BxS9Xhy.png 1.2 安装Hexonpm install -g hexo-cli 1.3 新建站点初始化hexo文件 hexo init [folder] cd &amp;lt;folder&amp;gt; n">
@@ -375,7 +375,8 @@ avatar: /photos/head.jpg
 <p> <a href="https://one-token.github.io">https://one-token.github.io</a>,</p>
 </blockquote>
 <p>可以正常访问SSH就配置完了 </p>
-<h1 id="三-使用OpenMarkdown-编辑"><a href="#三-使用OpenMarkdown-编辑" class="headerlink" title="三. 使用OpenMarkdown 编辑"></a>三. 使用OpenMarkdown 编辑</h1><p>我们下载好了OpenMarkdown2后希望新建layout时就自动打开OpenMarkDown进行内容编辑.</p>
+<h1 id="三-使用OpenMarkdown-编辑"><a href="#三-使用OpenMarkdown-编辑" class="headerlink" title="三. 使用OpenMarkdown 编辑"></a>三. 使用OpenMarkdown 编辑</h1><p>##设置默认MD文件编辑器##</p>
+<p>我们下载好了OpenMarkdown2后希望新建layout时就自动打开OpenMarkDown进行内容编辑.</p>
 <p>在window10中我们写一段Js来实现这个需求.首先我们需要在<strong>Hexo文件夹下新建scripts</strong>文件夹</p>
 <p>新建一个<strong>auto_open.js</strong>文件.js的内容为</p>
 <pre><code>var spawn = require(&apos;child_process&apos;).exec;
