@@ -16,12 +16,12 @@
 <meta property="og:site_name" content="二维世界">
 <meta property="og:description" content="搭建步骤基础环境  node   git  1. 注册账号注册一个Github账号,新建一个用户名.github.io的项目 并clone到本地.  2. 安装Hexonpm install -g hexo-cli 3.新建站点初始化hexo文件 hexo init [folder] cd &amp;lt;folder&amp;gt; npm install 新建页面$ hexo new [layout] &amp;lt">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:image" content="https://i.imgur.com/GYKJhTZ.png">
-<meta property="og:updated_time" content="2019-05-24T14:09:36.519Z">
+<meta property="og:image" content="https://i.imgur.com/BxS9Xhy.png">
+<meta property="og:updated_time" content="2019-05-24T14:35:31.018Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Hexo搭建github个人博客">
 <meta name="twitter:description" content="搭建步骤基础环境  node   git  1. 注册账号注册一个Github账号,新建一个用户名.github.io的项目 并clone到本地.  2. 安装Hexonpm install -g hexo-cli 3.新建站点初始化hexo文件 hexo init [folder] cd &amp;lt;folder&amp;gt; npm install 新建页面$ hexo new [layout] &amp;lt">
-<meta name="twitter:image" content="https://i.imgur.com/GYKJhTZ.png">
+<meta name="twitter:image" content="https://i.imgur.com/BxS9Xhy.png">
   
     <link rel="alternative" href="/atom.xml" title="二维世界" type="application/atom+xml">
   
@@ -196,7 +196,7 @@
         <h2 id="搭建步骤"><a href="#搭建步骤" class="headerlink" title="搭建步骤"></a>搭建步骤</h2><p><strong>基础环境</strong><br> <strong> node </strong><br> <strong> git </strong></p>
 <h2 id="1-注册账号"><a href="#1-注册账号" class="headerlink" title="1. 注册账号"></a>1. 注册账号</h2><p>注册一个Github账号,新建一个<strong>用户名.github.io</strong>的项目</p>
 <p>并clone到本地.</p>
-<p><img src="https://i.imgur.com/GYKJhTZ.png" alt></p>
+<p><img src="https://i.imgur.com/BxS9Xhy.png" alt></p>
 <h2 id="2-安装Hexo"><a href="#2-安装Hexo" class="headerlink" title="2. 安装Hexo"></a>2. 安装Hexo</h2><pre><code>npm install -g hexo-cli
 </code></pre><h2 id="3-新建站点"><a href="#3-新建站点" class="headerlink" title="3.新建站点"></a>3.新建站点</h2><p>初始化hexo文件</p>
 <pre><code>hexo init [folder]
@@ -251,7 +251,8 @@ npm install
 <h2 id="下载-Yilia"><a href="#下载-Yilia" class="headerlink" title="下载 Yilia"></a>下载 Yilia</h2><p>切换到hexo根目录中</p>
 <pre><code>git clone https://github.com/litten/hexo-theme-yilia.git themes/yilia
 </code></pre><p>下面就需要修改hexo的配置文件了.</p>
-<h2 id="配置文件"><a href="#配置文件" class="headerlink" title="配置文件"></a>配置文件</h2><p> 下面列举了HEXO根目录下的_config.yml常用参数的定义.<br> 详情请见<strong>Hexo官网文档:</strong></p>
+<h2 id="配置文件"><a href="#配置文件" class="headerlink" title="配置文件"></a>配置文件</h2><p> 下面列举了HEXO根目录下的_config.yml常用参数的定义.</p>
+<p> 详情请见<strong>Hexo官网文档:</strong></p>
 <blockquote>
 <p><a href="https://hexo.io/zh-cn/docs/configuration" target="_blank" rel="noopener">https://hexo.io/zh-cn/docs/configuration</a></p>
 </blockquote>
@@ -324,7 +325,7 @@ npm install
 <p>将theme参数修改为 theme: yilia </p>
 <p>这里有点需要注意下:所有变量后的value值在:号后必须要保留空格,否则构建会报错.重新编译部署,执行</p>
 <pre><code>$ hexo  clean &amp;&amp; hexo g -d
-</code></pre><h2 id="Git配置"><a href="#Git配置" class="headerlink" title="Git配置"></a>Git配置</h2><ul>
+</code></pre><h2 id="修改Yilia样式中的头像"><a href="#修改Yilia样式中的头像" class="headerlink" title="修改Yilia样式中的头像"></a>修改Yilia样式中的头像</h2><h2 id="Git配置"><a href="#Git配置" class="headerlink" title="Git配置"></a>Git配置</h2><ul>
 <li><p>登录git</p>
 </li>
 <li><p>点击new 创建一个项目,填写后面的名字的时候，需要注意，名称必须为 你的github有户名.github.io,这个一定不能出错,然后点击Create repository,这样创建了一个空项目</p>
@@ -361,6 +362,21 @@ npm install
 <p> <a href="https://one-token.github.io">https://one-token.github.io</a>,</p>
 </blockquote>
 <p>可以正常访问SSH就配置完了 </p>
+<h2 id="使用OpenMarkdown-编辑"><a href="#使用OpenMarkdown-编辑" class="headerlink" title="使用OpenMarkdown 编辑"></a>使用OpenMarkdown 编辑</h2><p>我们下载好了OpenMarkdown2后希望新建layout时就自动打开OpenMarkDown进行内容编辑.</p>
+<p>在window10中我们写一段Js来实现这个需求.</p>
+<p>首先我们需要在Hexo文件夹下新建scripts文件夹</p>
+<p>新建一个auto_open.js文件.js的内容为</p>
+<pre><code>var spawn = require(&apos;child_process&apos;).exec;
+// Hexo 2.x 用户复制这段
+//hexo.on(&apos;new&apos;, function(path){
+//  spawn(&apos;start  &quot;markdown编辑器绝对路径.exe&quot; &apos; + path);
+//});
+//D:\Program Files\MarkDown2\MarkdownPad2.exe 是MakdownPad编辑器在我本地的路径！
+// Hexo 3 用户复制这段
+hexo.on(&apos;new&apos;, function(data){
+  spawn(&apos;start  &quot;D:\Program Files\MarkDown2\MarkdownPad2.exe&quot; &apos; + data.path);
+});
+</code></pre><p>其它操作系统的请自行搜索.</p>
 
       
 
@@ -510,7 +526,7 @@ npm install
                 </span>
                 <span class="tooltip-content">
                     <div class="toc-article">
-                    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#搭建步骤"><span class="toc-number">1.</span> <span class="toc-text">搭建步骤</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-注册账号"><span class="toc-number">2.</span> <span class="toc-text">1. 注册账号</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-安装Hexo"><span class="toc-number">3.</span> <span class="toc-text">2. 安装Hexo</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-新建站点"><span class="toc-number">4.</span> <span class="toc-text">3.新建站点</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#新建页面"><span class="toc-number">5.</span> <span class="toc-text">新建页面</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#生成静态页面"><span class="toc-number">6.</span> <span class="toc-text">生成静态页面</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#本地运行"><span class="toc-number">7.</span> <span class="toc-text">本地运行</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#部署到网站"><span class="toc-number">8.</span> <span class="toc-text">部署到网站</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#下载-Yilia"><span class="toc-number">9.</span> <span class="toc-text">下载 Yilia</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#配置文件"><span class="toc-number">10.</span> <span class="toc-text">配置文件</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Git配置"><span class="toc-number">11.</span> <span class="toc-text">Git配置</span></a></li></ol>
+                    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#搭建步骤"><span class="toc-number">1.</span> <span class="toc-text">搭建步骤</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-注册账号"><span class="toc-number">2.</span> <span class="toc-text">1. 注册账号</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-安装Hexo"><span class="toc-number">3.</span> <span class="toc-text">2. 安装Hexo</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-新建站点"><span class="toc-number">4.</span> <span class="toc-text">3.新建站点</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#新建页面"><span class="toc-number">5.</span> <span class="toc-text">新建页面</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#生成静态页面"><span class="toc-number">6.</span> <span class="toc-text">生成静态页面</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#本地运行"><span class="toc-number">7.</span> <span class="toc-text">本地运行</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#部署到网站"><span class="toc-number">8.</span> <span class="toc-text">部署到网站</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#下载-Yilia"><span class="toc-number">9.</span> <span class="toc-text">下载 Yilia</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#配置文件"><span class="toc-number">10.</span> <span class="toc-text">配置文件</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#修改Yilia样式中的头像"><span class="toc-number">11.</span> <span class="toc-text">修改Yilia样式中的头像</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Git配置"><span class="toc-number">12.</span> <span class="toc-text">Git配置</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#使用OpenMarkdown-编辑"><span class="toc-number">13.</span> <span class="toc-text">使用OpenMarkdown 编辑</span></a></li></ol>
                     </div>
                 </span>
             </div>
