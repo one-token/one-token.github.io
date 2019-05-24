@@ -188,10 +188,10 @@
     
     <div class="article-entry" itemprop="articleBody">
       
-        <h2 id="一-搭建步骤"><a href="#一-搭建步骤" class="headerlink" title="一. 搭建步骤"></a>一. 搭建步骤</h2><p><strong>基础环境</strong><br> <strong> node </strong><br> <strong> git </strong></p>
+        <h1 id="一-搭建步骤"><a href="#一-搭建步骤" class="headerlink" title="一. 搭建步骤"></a>一. 搭建步骤</h1><p><strong>基础环境</strong><br> <strong> node </strong><br> <strong> git </strong></p>
 <h2 id="1-1-注册账号"><a href="#1-1-注册账号" class="headerlink" title="1.1 注册账号"></a>1.1 注册账号</h2><p>注册一个Github账号,新建一个<strong>用户名.github.io</strong>的项目</p>
 <p>并clone到本地.</p>
-<p><img src="https://i.imgur.com/BxS9Xhy.png" alt><br><a href="https://i.imgur.com/BxS9Xhy.png" target="_blank" rel="noopener">https://i.imgur.com/BxS9Xhy.png</a></p>
+<p><img src="https://i.imgur.com/BxS9Xhy.png" alt><br><a href="https://i.imgur.com/BxS9Xhy.png" target="_blank" rel="noopener">https://i.imgur.com/BxS9Xhy.png</a><br></p>
 <h2 id="1-2-安装Hexo"><a href="#1-2-安装Hexo" class="headerlink" title="1.2 安装Hexo"></a>1.2 安装Hexo</h2><pre><code>npm install -g hexo-cli
 </code></pre><h2 id="1-3-新建站点"><a href="#1-3-新建站点" class="headerlink" title="1.3 新建站点"></a>1.3 新建站点</h2><p>初始化hexo文件</p>
 <pre><code>hexo init [folder]
@@ -243,7 +243,7 @@ npm install
 <p><a href="https://hexo.io/themes/" target="_blank" rel="noopener">https://hexo.io/themes/</a></p>
 </blockquote>
 <p>我比较喜欢这款yilia的.下面就来替换默认的theme吧</p>
-<h2 id="二-下载-Yilia"><a href="#二-下载-Yilia" class="headerlink" title="二. 下载 Yilia"></a>二. 下载 Yilia</h2><p>切换到hexo根目录中</p>
+<h1 id="二-下载-Yilia"><a href="#二-下载-Yilia" class="headerlink" title="二. 下载 Yilia"></a>二. 下载 Yilia</h1><p>切换到hexo根目录中</p>
 <pre><code>git clone https://github.com/litten/hexo-theme-yilia.git themes/yilia
 </code></pre><p>下面就需要修改hexo的配置文件了.</p>
 <h2 id="2-1-配置文件"><a href="#2-1-配置文件" class="headerlink" title="2.1 配置文件"></a>2.1 配置文件</h2><p> 下面列举了HEXO根目录下的_config.yml常用参数的定义.</p>
@@ -326,7 +326,8 @@ npm install
 <pre><code>#你的头像url
 avatar: /photos/head.jpg
 </code></pre><p> 重新编译部署</p>
-<h2 id="2-3-修改导航栏"><a href="#2-3-修改导航栏" class="headerlink" title="2.3 修改导航栏"></a>2.3 修改导航栏</h2><p> 修改<strong>E:\MyGithubSpace\hexo\themes\yilia_config.yml</strong>文件.找到menu设置菜单分类并制定文件路径</p>
+<pre><code>$ hexo  clean &amp;&amp; hexo g -d
+</code></pre><h2 id="2-3-修改导航栏"><a href="#2-3-修改导航栏" class="headerlink" title="2.3 修改导航栏"></a>2.3 修改导航栏</h2><p> 修改<strong>E:\MyGithubSpace\hexo\themes\yilia_config.yml</strong>文件.找到menu设置菜单分类并制定文件路径</p>
 <pre><code>menu:
      主页: /
      随笔: /tags
@@ -369,10 +370,9 @@ avatar: /photos/head.jpg
 <p> <a href="https://one-token.github.io">https://one-token.github.io</a>,</p>
 </blockquote>
 <p>可以正常访问SSH就配置完了 </p>
-<h2 id="三-使用OpenMarkdown-编辑"><a href="#三-使用OpenMarkdown-编辑" class="headerlink" title="三. 使用OpenMarkdown 编辑"></a>三. 使用OpenMarkdown 编辑</h2><p>我们下载好了OpenMarkdown2后希望新建layout时就自动打开OpenMarkDown进行内容编辑.</p>
-<p>在window10中我们写一段Js来实现这个需求.</p>
-<p>首先我们需要在Hexo文件夹下新建scripts文件夹</p>
-<p>新建一个auto_open.js文件.js的内容为</p>
+<h1 id="三-使用OpenMarkdown-编辑"><a href="#三-使用OpenMarkdown-编辑" class="headerlink" title="三. 使用OpenMarkdown 编辑"></a>三. 使用OpenMarkdown 编辑</h1><p>我们下载好了OpenMarkdown2后希望新建layout时就自动打开OpenMarkDown进行内容编辑.</p>
+<p>在window10中我们写一段Js来实现这个需求.首先我们需要在<strong>Hexo文件夹下新建scripts</strong>文件夹</p>
+<p>新建一个<strong>auto_open.js</strong>文件.js的内容为</p>
 <pre><code>var spawn = require(&apos;child_process&apos;).exec;
 // Hexo 2.x 用户复制这段
 //hexo.on(&apos;new&apos;, function(path){
@@ -384,6 +384,19 @@ hexo.on(&apos;new&apos;, function(data){
   spawn(&apos;start  &quot;D:\Program Files\MarkDown2\MarkdownPad2.exe&quot; &apos; + data.path);
 });
 </code></pre><p>其它操作系统的请自行搜索.</p>
+<h1 id="四-Markdown文件编辑"><a href="#四-Markdown文件编辑" class="headerlink" title="四. Markdown文件编辑"></a>四. Markdown文件编辑</h1><h2 id="4-1-添加标签"><a href="#4-1-添加标签" class="headerlink" title="4.1 添加标签"></a>4.1 添加标签</h2><p>用OpenMarkdown2打开md文件后可以通过配置项改单页面增加标签,tags即为配置当前页面标签</p>
+<pre><code>title: 添加标签文章页面
+date: 2019-05-24 07:03:53
+comments: true
+toc: true
+categories: tags
+tags:
+  - github个人博客搭建
+  - hexo
+  - yilia
+  - gittalk
+</code></pre><h2 id="4-2-开启目录导航"><a href="#4-2-开启目录导航" class="headerlink" title="4.2 开启目录导航"></a>4.2 开启目录导航</h2><p>参照4.1配置 <strong>toc: true</strong> 即可 </p>
+<h2 id="4-2-设置当前文章分类"><a href="#4-2-设置当前文章分类" class="headerlink" title="4.2 设置当前文章分类"></a>4.2 设置当前文章分类</h2><p>参照4.1配置 <strong>categories: tags</strong> 即可</p>
 
       
 
