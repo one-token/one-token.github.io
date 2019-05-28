@@ -17,7 +17,9 @@
 <meta property="og:description" content="一. 搭建步骤基础环境  node   git  1.1 注册账号注册一个Github账号,新建一个用户名.github.io的项目 并clone到本地.">
 <meta property="og:locale" content="zh-CN">
 <meta property="og:image" content="https://one-token.github.io/2019/05/24/OpenMarkdown/slug.png">
-<meta property="og:updated_time" content="2019-05-27T23:03:54.405Z">
+<meta property="og:image" content="https://one-token.github.io/2019/05/24/OpenMarkdown/love.PNG">
+<meta property="og:image" content="https://one-token.github.io/2019/05/24/OpenMarkdown/不蒜子.PNG">
+<meta property="og:updated_time" content="2019-05-28T23:45:18.428Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Hexo搭建github个人博客">
 <meta name="twitter:description" content="一. 搭建步骤基础环境  node   git  1.1 注册账号注册一个Github账号,新建一个用户名.github.io的项目 并clone到本地.">
@@ -209,7 +211,7 @@ var _hmt = _hmt || [];
 <p><img src="slug.png" alt></p>
 <a id="more"></a>
 <h2 id="1-2-安装Hexo"><a href="#1-2-安装Hexo" class="headerlink" title="1.2 安装Hexo"></a>1.2 安装Hexo</h2><pre><code>npm install -g hexo-cli
-</code></pre><h2 id="1-3-新建站点"><a href="#1-3-新建站点" class="headerlink" title="1.3 新建站点"></a>1.3 新建站点</h2><p>初始化hexo文件</p>
+</code></pre><h2 id="1-3-初始化Hexo"><a href="#1-3-初始化Hexo" class="headerlink" title="1.3 初始化Hexo"></a>1.3 初始化Hexo</h2><p>初始化hexo文件</p>
 <pre><code>hexo init [folder]
 cd &lt;folder&gt;
 npm install
@@ -261,14 +263,10 @@ npm install
 <p><a href="https://hexo.io/themes/" target="_blank" rel="noopener">https://hexo.io/themes/</a></p>
 </blockquote>
 <p>我比较喜欢这款yilia的.下面就来替换默认的theme吧</p>
-<h1 id="二-下载-Yilia"><a href="#二-下载-Yilia" class="headerlink" title="二. 下载 Yilia"></a>二. 下载 Yilia</h1><p>切换到hexo根目录中</p>
+<h1 id="二-更换主题"><a href="#二-更换主题" class="headerlink" title="二. 更换主题"></a>二. 更换主题</h1><p>Hexo默认主题<strong>landscape</strong>,这里使用别人已经开发好的主题,切换到hexo根目录中</p>
 <pre><code>git clone https://github.com/litten/hexo-theme-yilia.git themes/yilia
 </code></pre><p>下面就需要修改hexo的配置文件了.</p>
 <h2 id="2-1-配置文件"><a href="#2-1-配置文件" class="headerlink" title="2.1 配置文件"></a>2.1 配置文件</h2><p> 下面列举了HEXO根目录下的_config.yml常用参数的定义.</p>
-<p> 详情请见<strong>Hexo官网文档:</strong></p>
-<blockquote>
-<p><a href="https://hexo.io/zh-cn/docs/configuration" target="_blank" rel="noopener">https://hexo.io/zh-cn/docs/configuration</a></p>
-</blockquote>
 <table>
 <thead>
 <tr>
@@ -334,24 +332,46 @@ npm install
 </tr>
 </tbody>
 </table>
+<p> 详情请见<strong>Hexo官网文档:</strong></p>
+<blockquote>
+<p><a href="https://hexo.io/zh-cn/docs/configuration" target="_blank" rel="noopener">https://hexo.io/zh-cn/docs/configuration</a></p>
+</blockquote>
 <p>我们只需要找到 <strong>Hexo根目录</strong>下的_config.yml文件.</p>
 <p>将theme参数修改为 <strong>theme: yilia </strong></p>
 <p>这里有点需要注意下:所有变量后的value值在:号后必须要保留空格,否则构建会报错.重新编译部署,执行</p>
 <pre><code>$ hexo  clean &amp;&amp; hexo g -d
 </code></pre><h2 id="2-2-修改Yilia样式中的头像"><a href="#2-2-修改Yilia样式中的头像" class="headerlink" title="2.2 修改Yilia样式中的头像"></a>2.2 修改Yilia样式中的头像</h2><p> 在Hexo目录中新建photos文件夹,然后复制头像到photos中,</p>
-<p> 这是我的头像的文件路径:<strong>E:\MyGithubSpace\hexo\source\photos\</strong>.</p>
-<p> 修改<strong>E:\MyGithubSpace\hexo\themes\yilia_config.yml</strong>文件.</p>
+<p> 这是我的头像的文件路径:<strong>E:\hexo\source\assets\img\</strong>.</p>
+<p> 修改<strong>E:\hexo\themes\yilia_config.yml</strong>文件.</p>
 <pre><code>#你的头像url
 avatar: /photos/head.jpg
 </code></pre><p> 重新编译部署</p>
 <pre><code>$ hexo  clean &amp;&amp; hexo g -d
-</code></pre><h2 id="2-3-修改导航栏"><a href="#2-3-修改导航栏" class="headerlink" title="2.3 修改导航栏"></a>2.3 修改导航栏</h2><p> 修改<strong>E:\MyGithubSpace\hexo\themes\yilia_config.yml</strong>文件.找到menu设置菜单分类并制定文件路径</p>
+</code></pre><h2 id="2-3-修改导航栏"><a href="#2-3-修改导航栏" class="headerlink" title="2.3 修改导航栏"></a>2.3 修改导航栏</h2><p> 修改<strong>E:\hexo\themes\yilia_config.yml</strong>文件.找到menu设置菜单分类并制定文件路径</p>
 <pre><code>menu:
      主页: /
      随笔: /tags
     相册: /photos
      关于: /about
-</code></pre><h2 id="2-4-Git配置"><a href="#2-4-Git配置" class="headerlink" title="2.4 Git配置"></a>2.4 Git配置</h2><ul>
+</code></pre><h2 id="2-4-点击出现爱心效果"><a href="#2-4-点击出现爱心效果" class="headerlink" title="2.4 点击出现爱心效果"></a>2.4 点击出现爱心效果</h2><p>修改Hexo 样式文件,不同的Theme修改的文件路径略有区别.但修改的文件大致相同.都是修改 footer.ejs文件.我修改的文件路径是:<strong>E:\hexo\themes\yilia\layout_partial</strong>.</p>
+<p>在文件底部加入</p>
+<pre><code>&lt;!--页面点击小红心--&gt;
+&lt;script type=&quot;text/javascript&quot; src=&quot;/love.js&quot;&gt;&lt;/script&gt;
+</code></pre><p><img src="love.PNG" alt></p>
+<p>love.js的内容</p>
+<pre><code>!function(e,t,a){function n(){c(&quot;.heart{width: 10px;height: 10px;position: fixed;background: #f00;transform: rotate(45deg);-webkit-transform: rotate(45deg);-moz-transform: rotate(45deg);}.heart:after,.heart:before{content: &apos;&apos;;width: inherit;height: inherit;background: inherit;border-radius: 50%;-webkit-border-radius: 50%;-moz-border-radius: 50%;position: fixed;}.heart:after{top: -5px;}.heart:before{left: -5px;}&quot;),o(),r()}function r(){for(var e=0;e&lt;d.length;e++)d[e].alpha&lt;=0?(t.body.removeChild(d[e].el),d.splice(e,1)):(d[e].y--,d[e].scale+=.004,d[e].alpha-=.013,d[e].el.style.cssText=&quot;left:&quot;+d[e].x+&quot;px;top:&quot;+d[e].y+&quot;px;opacity:&quot;+d[e].alpha+&quot;;transform:scale(&quot;+d[e].scale+&quot;,&quot;+d[e].scale+&quot;) rotate(45deg);background:&quot;+d[e].color+&quot;;z-index:99999&quot;);requestAnimationFrame(r)}function o(){var t=&quot;function&quot;==typeof e.onclick&amp;&amp;e.onclick;e.onclick=function(e){t&amp;&amp;t(),i(e)}}function i(e){var a=t.createElement(&quot;div&quot;);a.className=&quot;heart&quot;,d.push({el:a,x:e.clientX-5,y:e.clientY-5,scale:1,alpha:1,color:s()}),t.body.appendChild(a)}function c(e){var a=t.createElement(&quot;style&quot;);a.type=&quot;text/css&quot;;try{a.appendChild(t.createTextNode(e))}catch(t){a.styleSheet.cssText=e}t.getElementsByTagName(&quot;head&quot;)[0].appendChild(a)}function s(){return&quot;rgb(&quot;+~~(255*Math.random())+&quot;,&quot;+~~(255*Math.random())+&quot;,&quot;+~~(255*Math.random())+&quot;)&quot;}var d=[];e.requestAnimationFrame=function(){return e.requestAnimationFrame||e.webkitRequestAnimationFrame||e.mozRequestAnimationFrame||e.oRequestAnimationFrame||e.msRequestAnimationFrame||function(e){setTimeout(e,1e3/60)}}(),n()}(window,document);
+</code></pre><p>love.js文件放在对应theme文件夹的source中.我的路径是: <strong>E:\hexo\themes\yilia\source\love.js</strong></p>
+<h2 id="2-5-不蒜子浏览统计集成"><a href="#2-5-不蒜子浏览统计集成" class="headerlink" title="2.5 不蒜子浏览统计集成"></a>2.5 不蒜子浏览统计集成</h2><p> 与love.js修改的文件相同,添加以下代码到footer.ejs中</p>
+<pre><code> &lt;span id=&quot;busuanzi_container_site_pv&quot; style=&quot;display: inline;&quot;&gt;
+    总访问量: &lt;span id=&quot;busuanzi_value_site_pv&quot;&gt;&lt;/span&gt; 
+&lt;/span&gt;
+|
+&lt;span id=&quot;busuanzi_container_site_uv&quot; style=&quot;display: inline;&quot;&gt;
+    总访客: &lt;span id=&quot;busuanzi_value_site_uv&quot;&gt;&lt;/span&gt;
+&lt;/span&gt;
+</code></pre><p>在footer.ejs底部添加<br> <code>&lt;script async src=&quot;//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js&quot;&gt;&lt;/script&gt;</code></p>
+<p><img src="不蒜子.PNG" alt></p>
+<h2 id="2-4-Git配置"><a href="#2-4-Git配置" class="headerlink" title="2.4 Git配置"></a>2.4 Git配置</h2><ul>
 <li><p>登录git</p>
 </li>
 <li><p>点击new 创建一个项目,填写后面的名字的时候，需要注意，名称必须为 你的github有户名.github.io,这个一定不能出错,然后点击Create repository,这样创建了一个空项目</p>
@@ -396,10 +416,10 @@ avatar: /photos/head.jpg
 //hexo.on(&apos;new&apos;, function(path){
 //  spawn(&apos;start  &quot;markdown编辑器绝对路径.exe&quot; &apos; + path);
 //});
-//D:\Program Files\MarkDown2\MarkdownPad2.exe 是MakdownPad编辑器在我本地的路径！
+//C:\MarkDown2\MarkdownPad2.exe 是MakdownPad编辑器在我本地的路径！
 // Hexo 3 用户复制这段
 hexo.on(&apos;new&apos;, function(data){
-  spawn(&apos;start  &quot;D:\Program Files\MarkDown2\MarkdownPad2.exe&quot; &apos; + data.path);
+  spawn(&apos;start  &quot;C:\MarkDown2\MarkdownPad2.exe&quot; &apos; + data.path);
 });
 </code></pre><p>其它操作系统的请自行搜索.</p>
 <h1 id="四-Markdown文件编辑"><a href="#四-Markdown文件编辑" class="headerlink" title="四. Markdown文件编辑"></a>四. Markdown文件编辑</h1><h2 id="4-1-添加标签"><a href="#4-1-添加标签" class="headerlink" title="4.1 添加标签"></a>4.1 添加标签</h2><p>用OpenMarkdown2打开md文件后可以通过配置项改单页面增加标签,tags即为配置当前页面标签</p>
@@ -415,6 +435,7 @@ tags:
   - gittalk
 </code></pre><h2 id="4-2-开启目录导航"><a href="#4-2-开启目录导航" class="headerlink" title="4.2 开启目录导航"></a>4.2 开启目录导航</h2><p>参照4.1配置 <strong>toc: true</strong> 即可 </p>
 <h2 id="4-2-设置当前文章分类"><a href="#4-2-设置当前文章分类" class="headerlink" title="4.2 设置当前文章分类"></a>4.2 设置当前文章分类</h2><p>参照4.1配置 <strong>categories: tags</strong> 即可</p>
+<h2 id="4-3-文章添加图片"><a href="#4-3-文章添加图片" class="headerlink" title="4.3 文章添加图片"></a>4.3 文章添加图片</h2><p>将所用到的图片资源放到对应博客文章名称的文件夹中,然后使用<code>![](xxx.png)</code>将图片插入文章中.</p>
 <p>本文原始链接:  <a href="https://one-token.github.io/2019/05/24/OpenMarkdown/">https://one-token.github.io/2019/05/24/OpenMarkdown/</a></p>
 
       
@@ -577,7 +598,7 @@ tags:
                 </span>
                 <span class="tooltip-content">
                     <div class="toc-article">
-                    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#一-搭建步骤"><span class="toc-number">1.</span> <span class="toc-text">一. 搭建步骤</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-1-注册账号"><span class="toc-number">1.1.</span> <span class="toc-text">1.1 注册账号</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-2-安装Hexo"><span class="toc-number">1.2.</span> <span class="toc-text">1.2 安装Hexo</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-3-新建站点"><span class="toc-number">1.3.</span> <span class="toc-text">1.3 新建站点</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-4-新建页面"><span class="toc-number">1.4.</span> <span class="toc-text">1.4 新建页面</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-5-生成静态页面"><span class="toc-number">1.5.</span> <span class="toc-text">1.5 生成静态页面</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-6-本地运行"><span class="toc-number">1.6.</span> <span class="toc-text">1.6 本地运行</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-7-部署到网站"><span class="toc-number">1.7.</span> <span class="toc-text">1.7 部署到网站</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-8-Hexo-常用命令"><span class="toc-number">1.8.</span> <span class="toc-text">1.8 Hexo 常用命令</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#二-下载-Yilia"><span class="toc-number">2.</span> <span class="toc-text">二. 下载 Yilia</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#2-1-配置文件"><span class="toc-number">2.1.</span> <span class="toc-text">2.1 配置文件</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-2-修改Yilia样式中的头像"><span class="toc-number">2.2.</span> <span class="toc-text">2.2 修改Yilia样式中的头像</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-3-修改导航栏"><span class="toc-number">2.3.</span> <span class="toc-text">2.3 修改导航栏</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-4-Git配置"><span class="toc-number">2.4.</span> <span class="toc-text">2.4 Git配置</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#三-使用OpenMarkdown-编辑"><span class="toc-number">3.</span> <span class="toc-text">三. 使用OpenMarkdown 编辑</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#设置默认MD文件编辑器"><span class="toc-number">3.1.</span> <span class="toc-text">设置默认MD文件编辑器</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#四-Markdown文件编辑"><span class="toc-number">4.</span> <span class="toc-text">四. Markdown文件编辑</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#4-1-添加标签"><span class="toc-number">4.1.</span> <span class="toc-text">4.1 添加标签</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-2-开启目录导航"><span class="toc-number">4.2.</span> <span class="toc-text">4.2 开启目录导航</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-2-设置当前文章分类"><span class="toc-number">4.3.</span> <span class="toc-text">4.2 设置当前文章分类</span></a></li></ol></li></ol>
+                    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#一-搭建步骤"><span class="toc-number">1.</span> <span class="toc-text">一. 搭建步骤</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-1-注册账号"><span class="toc-number">1.1.</span> <span class="toc-text">1.1 注册账号</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-2-安装Hexo"><span class="toc-number">1.2.</span> <span class="toc-text">1.2 安装Hexo</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-3-初始化Hexo"><span class="toc-number">1.3.</span> <span class="toc-text">1.3 初始化Hexo</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-4-新建页面"><span class="toc-number">1.4.</span> <span class="toc-text">1.4 新建页面</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-5-生成静态页面"><span class="toc-number">1.5.</span> <span class="toc-text">1.5 生成静态页面</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-6-本地运行"><span class="toc-number">1.6.</span> <span class="toc-text">1.6 本地运行</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-7-部署到网站"><span class="toc-number">1.7.</span> <span class="toc-text">1.7 部署到网站</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-8-Hexo-常用命令"><span class="toc-number">1.8.</span> <span class="toc-text">1.8 Hexo 常用命令</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#二-更换主题"><span class="toc-number">2.</span> <span class="toc-text">二. 更换主题</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#2-1-配置文件"><span class="toc-number">2.1.</span> <span class="toc-text">2.1 配置文件</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-2-修改Yilia样式中的头像"><span class="toc-number">2.2.</span> <span class="toc-text">2.2 修改Yilia样式中的头像</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-3-修改导航栏"><span class="toc-number">2.3.</span> <span class="toc-text">2.3 修改导航栏</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-4-点击出现爱心效果"><span class="toc-number">2.4.</span> <span class="toc-text">2.4 点击出现爱心效果</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-5-不蒜子浏览统计集成"><span class="toc-number">2.5.</span> <span class="toc-text">2.5 不蒜子浏览统计集成</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-4-Git配置"><span class="toc-number">2.6.</span> <span class="toc-text">2.4 Git配置</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#三-使用OpenMarkdown-编辑"><span class="toc-number">3.</span> <span class="toc-text">三. 使用OpenMarkdown 编辑</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#设置默认MD文件编辑器"><span class="toc-number">3.1.</span> <span class="toc-text">设置默认MD文件编辑器</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#四-Markdown文件编辑"><span class="toc-number">4.</span> <span class="toc-text">四. Markdown文件编辑</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#4-1-添加标签"><span class="toc-number">4.1.</span> <span class="toc-text">4.1 添加标签</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-2-开启目录导航"><span class="toc-number">4.2.</span> <span class="toc-text">4.2 开启目录导航</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-2-设置当前文章分类"><span class="toc-number">4.3.</span> <span class="toc-text">4.2 设置当前文章分类</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-3-文章添加图片"><span class="toc-number">4.4.</span> <span class="toc-text">4.3 文章添加图片</span></a></li></ol></li></ol>
                     </div>
                 </span>
             </div>
@@ -638,7 +659,6 @@ gitalk.render('gitalk-container')
     	<div class="footer-left">
     		&copy; 2019 Darren
     	</div>
-      	<div class="footer-right">     		
 			<span id="busuanzi_container_site_pv" style="display: inline;">
 				总访问量: <span id="busuanzi_value_site_pv"></span> 
 			</span>
@@ -646,7 +666,9 @@ gitalk.render('gitalk-container')
 			<span id="busuanzi_container_site_uv" style="display: inline;">
 				总访客: <span id="busuanzi_value_site_uv"></span>
 			</span>
-      	</div>
+      	
+      	<div class="footer-right">     		
+		</div>
     </div>
   </div>
 </footer>
@@ -729,6 +751,18 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
             <input type="checkbox" q-on="click:toggleTag(e)" q-attr="checked:showTags">
           </label>
           <ul class="article-tag-list" q-show="showTags">
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">博客模板</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">Android源码</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">Handler机制</a>
+              </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">Android 知识体系图谱</a>
