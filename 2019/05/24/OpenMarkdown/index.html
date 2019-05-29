@@ -9,7 +9,7 @@
   <title>Hexo搭建github个人博客 | 二维世界</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   <meta name="description" content="一. 搭建步骤基础环境  node   git  1.1 注册账号注册一个Github账号,新建一个用户名.github.io的项目 并clone到本地.">
-<meta name="keywords" content="github个人博客搭建,hexo,yilia,gittalk,OpenMarkdown,随笔,不蒜子">
+<meta name="keywords" content="随笔,github个人博客搭建,hexo,yilia,gittalk,OpenMarkdown,不蒜子">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Hexo搭建github个人博客">
 <meta property="og:url" content="https://one-token.github.io/2019/05/24/OpenMarkdown/index.html">
@@ -20,7 +20,7 @@
 <meta property="og:image" content="https://one-token.github.io/2019/05/24/OpenMarkdown/love.PNG">
 <meta property="og:image" content="https://one-token.github.io/2019/05/24/OpenMarkdown/不蒜子.PNG">
 <meta property="og:image" content="https://one-token.github.io/2019/05/24/OpenMarkdown/oauth_apps.png">
-<meta property="og:updated_time" content="2019-05-29T23:16:05.876Z">
+<meta property="og:updated_time" content="2019-05-29T23:40:57.024Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Hexo搭建github个人博客">
 <meta name="twitter:description" content="一. 搭建步骤基础环境  node   git  1.1 注册账号注册一个Github账号,新建一个用户名.github.io的项目 并clone到本地.">
@@ -354,7 +354,27 @@ avatar: /photos/head.jpg
      随笔: /tags
     相册: /photos
      关于: /about
-</code></pre><h2 id="2-4-点击出现爱心效果"><a href="#2-4-点击出现爱心效果" class="headerlink" title="2.4 点击出现爱心效果"></a>2.4 点击出现爱心效果</h2><p>修改Hexo 样式文件,不同的Theme修改的文件路径略有区别.但修改的文件大致相同.都是修改 footer.ejs文件.我修改的文件路径是:<strong>E:\hexo\themes\yilia\layout_partial</strong>.</p>
+</code></pre><p>添加分享配置</p>
+<pre><code># SubNav
+subnav:
+  github: &quot;#&quot;
+  weibo: &quot;#&quot;
+  rss: &quot;#&quot;
+  zhihu: &quot;#&quot;
+  #qq: &quot;#&quot;
+  #weixin: &quot;#&quot;
+  #jianshu: &quot;#&quot;
+  #douban: &quot;#&quot;
+  #segmentfault: &quot;#&quot;
+  #bilibili: &quot;#&quot;
+  #acfun: &quot;#&quot;
+  #mail: &quot;mailto:xxx@163.com&quot;
+  #facebook: &quot;#&quot;
+  #google: &quot;#&quot;
+  #twitter: &quot;#&quot;
+  #linkedin: &quot;#&quot;
+</code></pre><p>修改图片样式可以参考:<br><a href="https://blog.csdn.net/csdn_inside/article/details/89159803" target="_blank" rel="noopener">https://blog.csdn.net/csdn_inside/article/details/89159803</a></p>
+<h2 id="2-4-点击出现爱心效果"><a href="#2-4-点击出现爱心效果" class="headerlink" title="2.4 点击出现爱心效果"></a>2.4 点击出现爱心效果</h2><p>修改Hexo 样式文件,不同的Theme修改的文件路径略有区别.但修改的文件大致相同.都是修改 footer.ejs文件.我修改的文件路径是:<strong>E:\hexo\themes\yilia\layout_partial</strong>.</p>
 <p>在文件底部加入</p>
 <pre><code>&lt;!--页面点击小红心--&gt;
 &lt;script type=&quot;text/javascript&quot; src=&quot;/love.js&quot;&gt;&lt;/script&gt;
@@ -392,9 +412,9 @@ if(&lt;%=theme.gitalk.enable%&gt;){
 gitalk.render(&apos;gitalk-container&apos;) 
 }
 &lt;/script&gt;
-</code></pre><p> 这里是已经成功配置的代码.已经处理好了异常的问题.md5.js的代码请参照下篇博客</p>
+</code></pre><p> 这是已经成功配置的代码.已经处理好了异常的问题.md5.js的代码请参照下篇博客</p>
 <p> <strong><a href="https://one-token.github.io/2019/05/25/Github%E4%B8%AA%E4%BA%BA%E5%8D%9A%E5%AE%A2%E6%90%AD%E5%BB%BA%E4%B8%AD%E9%81%87%E5%88%B0%E7%9A%84%E9%97%AE%E9%A2%98/"> Github个人博客搭建中遇到的问题</a></strong></p>
-<p> 这里其实还可以做一些优化.将gittalk.min.js和gitalk.css文件下载下来放到自己博客中,以减少界面加载耗时.<br> gitalk下载地址: git clone <a href="https://github.com/gitalk/gitalk.git" target="_blank" rel="noopener">https://github.com/gitalk/gitalk.git</a></p>
+<p> 后续的优化.可以将gittalk.min.js和gitalk.css文件下载下来放到自己博客中,以减少界面加载耗时.<br> gitalk下载地址: git clone <a href="https://github.com/gitalk/gitalk.git" target="_blank" rel="noopener">https://github.com/gitalk/gitalk.git</a></p>
 <p> b.在E:\hexo\themes\yilia\layout_partial\目录下找到article.ejs文件,在文件结尾增加以下代码</p>
 <pre><code> &lt;% if ( !index ){ %&gt;
  &lt;% if(theme.gitalk.enable){ %&gt;
@@ -405,7 +425,7 @@ gitalk.render(&apos;gitalk-container&apos;)
 }) %&gt;
   &lt;% } %&gt;
   &lt;% } %&gt;
-</code></pre><p>这里做了一点优化,在博客主界面不展示gitalk评论功能.需要展示可以将&lt;% if(!index ){ %&gt;&lt;% } %&gt; 去掉.</p>
+</code></pre><p> 希望在博客主界面展示gitalk评论功能.可以将&lt;% if(!index ){ %&gt;&lt;% } %&gt; 去掉.</p>
 <p> c.在yilia目录下找到_config.yml文件.添加以下代码</p>
 <pre><code>#6、gitalk评论
 gitalk:
@@ -416,10 +436,10 @@ gitalk:
   ClientSecret:  &apos;YourClientSecret&apos;
   adminUser:  one-token 
   distractionFreeMode: false
-</code></pre><p> 这里的 ClientID 和 ClientSecret 需要自行去github注册.</p>
+</code></pre><p>   ClientID 和 ClientSecret 需要自行去github注册.</p>
 <p> d.打开<a href="https://github.com/settings/applications/new" target="_blank" rel="noopener">https://github.com/settings/applications/new</a>, 注册OAuth Apps</p>
 <p><img src="oauth_apps.png" alt><br>将获取到的 ClientID 和ClientSecret填写到配置中去</p>
-<h2 id="2-4-Git配置"><a href="#2-4-Git配置" class="headerlink" title="2.4 Git配置"></a>2.4 Git配置</h2><ul>
+<h2 id="2-7-Git配置"><a href="#2-7-Git配置" class="headerlink" title="2.7 Git配置"></a>2.7 Git配置</h2><ul>
 <li><p>登录git</p>
 </li>
 <li><p>点击new 创建一个项目,填写后面的名字的时候，需要注意，名称必须为 你的github有户名.github.io,这个一定不能出错,然后点击Create repository,这样创建了一个空项目</p>
@@ -430,7 +450,7 @@ gitalk:
 <p>   ssh-keygen -t rsa -C “<a href="mailto:xxx@163.com" target="_blank" rel="noopener">xxx@163.com</a>“ </p>
 </li>
 </ul>
-<p>连续按三次回车，会在 C:\Users\Administrator.ssh 有三个文件，打开id_rsa.pub文件，copy文件中的内容 </p>
+<p>连续三次回车，会在 C:\Users\Administrator.ssh 有三个文件，打开id_rsa.pub文件，copy文件中的内容 </p>
 <ul>
 <li><p>点击Settings </p>
 </li>
@@ -485,7 +505,8 @@ tags:
   - gittalk
 </code></pre><h2 id="4-2-开启目录导航"><a href="#4-2-开启目录导航" class="headerlink" title="4.2 开启目录导航"></a>4.2 开启目录导航</h2><p>参照4.1配置 <strong>toc: true</strong> 即可 </p>
 <h2 id="4-2-设置当前文章分类"><a href="#4-2-设置当前文章分类" class="headerlink" title="4.2 设置当前文章分类"></a>4.2 设置当前文章分类</h2><p>参照4.1配置 <strong>categories: tags</strong> 即可</p>
-<h2 id="4-3-开启文章打赏功能"><a href="#4-3-开启文章打赏功能" class="headerlink" title="4.3 开启文章打赏功能"></a>4.3 开启文章打赏功能</h2><p>配置文章 <strong>reward: true</strong></p>
+<h2 id="4-3-开启文章打赏功能"><a href="#4-3-开启文章打赏功能" class="headerlink" title="4.3 开启文章打赏功能"></a>4.3 开启文章打赏功能</h2><p>配置文章 <strong>reward: true</strong><br>并打开theme下_config,yml.添加打赏二维码</p>
+<p>支付宝二维码图片地址，跟设置头像的方式一样。<br><strong>alipay: /assets/img/alipay.jpg</strong><br>微信二维码图片地址<br><strong>weixin: /assets/img/weixin.jpg</strong></p>
 <h2 id="4-4-文章添加图片"><a href="#4-4-文章添加图片" class="headerlink" title="4.4 文章添加图片"></a>4.4 文章添加图片</h2><p>将所用到的图片资源放到对应博客文章名称的文件夹中,然后使用<code>![](xxx.png)</code>将图片插入文章中.</p>
 <p>本文原始链接:  <a href="https://one-token.github.io/2019/05/24/OpenMarkdown/">https://one-token.github.io/2019/05/24/OpenMarkdown/</a></p>
 
@@ -522,6 +543,10 @@ tags:
 		<ul class="article-tag-list">
 			 
         		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">随笔</a>
+        		</li>
+      		 
+        		<li class="article-tag-list-item">
         			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">github个人博客搭建</a>
         		</li>
       		 
@@ -539,10 +564,6 @@ tags:
       		 
         		<li class="article-tag-list-item">
         			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">OpenMarkdown</a>
-        		</li>
-      		 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">随笔</a>
         		</li>
       		 
         		<li class="article-tag-list-item">
@@ -649,7 +670,7 @@ tags:
                 </span>
                 <span class="tooltip-content">
                     <div class="toc-article">
-                    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#一-搭建步骤"><span class="toc-number">1.</span> <span class="toc-text">一. 搭建步骤</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-1-注册账号"><span class="toc-number">1.1.</span> <span class="toc-text">1.1 注册账号</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-2-安装Hexo"><span class="toc-number">1.2.</span> <span class="toc-text">1.2 安装Hexo</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-3-初始化Hexo"><span class="toc-number">1.3.</span> <span class="toc-text">1.3 初始化Hexo</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-4-新建页面"><span class="toc-number">1.4.</span> <span class="toc-text">1.4 新建页面</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-5-生成静态页面"><span class="toc-number">1.5.</span> <span class="toc-text">1.5 生成静态页面</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-6-本地运行"><span class="toc-number">1.6.</span> <span class="toc-text">1.6 本地运行</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-7-部署到网站"><span class="toc-number">1.7.</span> <span class="toc-text">1.7 部署到网站</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-8-Hexo-常用命令"><span class="toc-number">1.8.</span> <span class="toc-text">1.8 Hexo 常用命令</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#二-更换主题"><span class="toc-number">2.</span> <span class="toc-text">二. 更换主题</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#2-1-配置文件"><span class="toc-number">2.1.</span> <span class="toc-text">2.1 配置文件</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-2-修改Yilia样式中的头像"><span class="toc-number">2.2.</span> <span class="toc-text">2.2 修改Yilia样式中的头像</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-3-修改导航栏"><span class="toc-number">2.3.</span> <span class="toc-text">2.3 修改导航栏</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-4-点击出现爱心效果"><span class="toc-number">2.4.</span> <span class="toc-text">2.4 点击出现爱心效果</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-5-不蒜子浏览统计集成"><span class="toc-number">2.5.</span> <span class="toc-text">2.5 不蒜子浏览统计集成</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-6-集成Gitalk评论功能"><span class="toc-number">2.6.</span> <span class="toc-text">2.6 集成Gitalk评论功能</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-4-Git配置"><span class="toc-number">2.7.</span> <span class="toc-text">2.4 Git配置</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#三-使用OpenMarkdown-编辑"><span class="toc-number">3.</span> <span class="toc-text">三. 使用OpenMarkdown 编辑</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#设置默认MD文件编辑器"><span class="toc-number">3.1.</span> <span class="toc-text">设置默认MD文件编辑器</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#四-Markdown文件编辑"><span class="toc-number">4.</span> <span class="toc-text">四. Markdown文件编辑</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#4-1-添加标签"><span class="toc-number">4.1.</span> <span class="toc-text">4.1 添加标签</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-2-开启目录导航"><span class="toc-number">4.2.</span> <span class="toc-text">4.2 开启目录导航</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-2-设置当前文章分类"><span class="toc-number">4.3.</span> <span class="toc-text">4.2 设置当前文章分类</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-3-开启文章打赏功能"><span class="toc-number">4.4.</span> <span class="toc-text">4.3 开启文章打赏功能</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-4-文章添加图片"><span class="toc-number">4.5.</span> <span class="toc-text">4.4 文章添加图片</span></a></li></ol></li></ol>
+                    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#一-搭建步骤"><span class="toc-number">1.</span> <span class="toc-text">一. 搭建步骤</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-1-注册账号"><span class="toc-number">1.1.</span> <span class="toc-text">1.1 注册账号</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-2-安装Hexo"><span class="toc-number">1.2.</span> <span class="toc-text">1.2 安装Hexo</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-3-初始化Hexo"><span class="toc-number">1.3.</span> <span class="toc-text">1.3 初始化Hexo</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-4-新建页面"><span class="toc-number">1.4.</span> <span class="toc-text">1.4 新建页面</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-5-生成静态页面"><span class="toc-number">1.5.</span> <span class="toc-text">1.5 生成静态页面</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-6-本地运行"><span class="toc-number">1.6.</span> <span class="toc-text">1.6 本地运行</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-7-部署到网站"><span class="toc-number">1.7.</span> <span class="toc-text">1.7 部署到网站</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-8-Hexo-常用命令"><span class="toc-number">1.8.</span> <span class="toc-text">1.8 Hexo 常用命令</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#二-更换主题"><span class="toc-number">2.</span> <span class="toc-text">二. 更换主题</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#2-1-配置文件"><span class="toc-number">2.1.</span> <span class="toc-text">2.1 配置文件</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-2-修改Yilia样式中的头像"><span class="toc-number">2.2.</span> <span class="toc-text">2.2 修改Yilia样式中的头像</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-3-修改导航栏"><span class="toc-number">2.3.</span> <span class="toc-text">2.3 修改导航栏</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-4-点击出现爱心效果"><span class="toc-number">2.4.</span> <span class="toc-text">2.4 点击出现爱心效果</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-5-不蒜子浏览统计集成"><span class="toc-number">2.5.</span> <span class="toc-text">2.5 不蒜子浏览统计集成</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-6-集成Gitalk评论功能"><span class="toc-number">2.6.</span> <span class="toc-text">2.6 集成Gitalk评论功能</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-7-Git配置"><span class="toc-number">2.7.</span> <span class="toc-text">2.7 Git配置</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#三-使用OpenMarkdown-编辑"><span class="toc-number">3.</span> <span class="toc-text">三. 使用OpenMarkdown 编辑</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#设置默认MD文件编辑器"><span class="toc-number">3.1.</span> <span class="toc-text">设置默认MD文件编辑器</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#四-Markdown文件编辑"><span class="toc-number">4.</span> <span class="toc-text">四. Markdown文件编辑</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#4-1-添加标签"><span class="toc-number">4.1.</span> <span class="toc-text">4.1 添加标签</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-2-开启目录导航"><span class="toc-number">4.2.</span> <span class="toc-text">4.2 开启目录导航</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-2-设置当前文章分类"><span class="toc-number">4.3.</span> <span class="toc-text">4.2 设置当前文章分类</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-3-开启文章打赏功能"><span class="toc-number">4.4.</span> <span class="toc-text">4.3 开启文章打赏功能</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-4-文章添加图片"><span class="toc-number">4.5.</span> <span class="toc-text">4.4 文章添加图片</span></a></li></ol></li></ol>
                     </div>
                 </span>
             </div>
@@ -813,7 +834,11 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">Handler机制</a>
+                <a href="javascript:void(0)" class="js-tag color5">Android 知识体系图谱</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">随笔</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -837,11 +862,7 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">随笔</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">Android 知识体系图谱</a>
+                <a href="javascript:void(0)" class="js-tag color5">Handler机制</a>
               </li>
              
               <li class="article-tag-list-item">
