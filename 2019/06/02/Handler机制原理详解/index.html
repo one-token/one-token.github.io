@@ -8,20 +8,20 @@
   <link rel="dns-prefetch" href="https://one-token.github.io">
   <title>Handler机制原理详解 | 二维世界</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="#前言#  Handler对于开发者来说都不陌生,但是那么它到底为什么而产生.又解决了那些问题呢?带着这些疑问来解读Handler通讯的机制.站在Android系统整体角度来分析Handler源码的实现原理.  Android 的显示屏幕是以60Hz/s来刷新的,相当于加载每一帧的时间为16ms,在Android系统每隔16ms就会发出一次VSYNC信号对UI界面进行渲染,我们必须要保证我们的UI">
+  <meta name="description" content="#前言#  Handler对于开发者来说都不陌生,但是那么它到底为什么而产生.又解决了那些问题呢?带着这些疑问来解读Handler通讯的机制.站在Android系统整体角度来分析Handler源码的实现原理.  Android 的显示屏幕是以60Hz/s来刷新的,相当于加载每一帧的时间为16ms,在Android系统每隔16ms就会发出一次VSYNC信号对UI界面进行渲染,我们必须要保证我们的U">
 <meta name="keywords" content="Android源码,Handler通讯机制">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Handler机制原理详解">
 <meta property="og:url" content="https://one-token.github.io/2019/06/02/Handler机制原理详解/index.html">
 <meta property="og:site_name" content="二维世界">
-<meta property="og:description" content="#前言#  Handler对于开发者来说都不陌生,但是那么它到底为什么而产生.又解决了那些问题呢?带着这些疑问来解读Handler通讯的机制.站在Android系统整体角度来分析Handler源码的实现原理.  Android 的显示屏幕是以60Hz/s来刷新的,相当于加载每一帧的时间为16ms,在Android系统每隔16ms就会发出一次VSYNC信号对UI界面进行渲染,我们必须要保证我们的UI">
+<meta property="og:description" content="#前言#  Handler对于开发者来说都不陌生,但是那么它到底为什么而产生.又解决了那些问题呢?带着这些疑问来解读Handler通讯的机制.站在Android系统整体角度来分析Handler源码的实现原理.  Android 的显示屏幕是以60Hz/s来刷新的,相当于加载每一帧的时间为16ms,在Android系统每隔16ms就会发出一次VSYNC信号对UI界面进行渲染,我们必须要保证我们的U">
 <meta property="og:locale" content="zh-CN">
 <meta property="og:image" content="https://one-token.github.io/2019/06/02/Handler机制原理详解/handler机制.png">
 <meta property="og:image" content="https://one-token.github.io/2019/06/02/Handler机制原理详解/Handler交互流程.jpg">
-<meta property="og:updated_time" content="2019-06-01T23:29:28.000Z">
+<meta property="og:updated_time" content="2019-06-01T23:30:09.451Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Handler机制原理详解">
-<meta name="twitter:description" content="#前言#  Handler对于开发者来说都不陌生,但是那么它到底为什么而产生.又解决了那些问题呢?带着这些疑问来解读Handler通讯的机制.站在Android系统整体角度来分析Handler源码的实现原理.  Android 的显示屏幕是以60Hz/s来刷新的,相当于加载每一帧的时间为16ms,在Android系统每隔16ms就会发出一次VSYNC信号对UI界面进行渲染,我们必须要保证我们的UI">
+<meta name="twitter:description" content="#前言#  Handler对于开发者来说都不陌生,但是那么它到底为什么而产生.又解决了那些问题呢?带着这些疑问来解读Handler通讯的机制.站在Android系统整体角度来分析Handler源码的实现原理.  Android 的显示屏幕是以60Hz/s来刷新的,相当于加载每一帧的时间为16ms,在Android系统每隔16ms就会发出一次VSYNC信号对UI界面进行渲染,我们必须要保证我们的U">
 <meta name="twitter:image" content="https://one-token.github.io/2019/06/02/Handler机制原理详解/handler机制.png">
   
     <link rel="alternative" href="/atom.xml" title="二维世界" type="application/atom+xml">
@@ -206,7 +206,8 @@ var _hmt = _hmt || [];
 	<div>
     <div class="article-entry" itemprop="articleBody">
       
-        <p>#前言#<br>  Handler对于开发者来说都不陌生,但是那么它到底为什么而产生.又解决了那些问题呢?带着这些疑问来解读Handler通讯的机制.站在Android系统整体角度来分析Handler源码的实现原理.</p>
+        <a id="more"></a>
+<p>#前言#<br>  Handler对于开发者来说都不陌生,但是那么它到底为什么而产生.又解决了那些问题呢?带着这些疑问来解读Handler通讯的机制.站在Android系统整体角度来分析Handler源码的实现原理.</p>
 <p> Android 的显示屏幕是以60Hz/s来刷新的,相当于加载每一帧的时间为16ms,在Android系统每隔16ms就会发出一次VSYNC信号对UI界面进行渲染,我们必须要保证我们的UI线程的代码在16ms内执行完毕,否则就会产生丢帧现象,导致界面卡顿.<strong>    为了保证UI线程在16ms内执行完毕,那么就要必须要将耗时的操作放到子线程中执行.为了解决UI线程与子线程之间信息交互传递的问题,就产生了Handler通讯机制. </strong></p>
 <p>#简介#</p>
 <p> ##定义##<br> Handler通讯机制是Android中的消息传递机制.</p>
@@ -863,6 +864,14 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
           <ul class="article-tag-list" q-show="showTags">
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">博客模板</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">Android源码</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">github个人博客搭建</a>
               </li>
              
@@ -888,14 +897,6 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">Android 知识体系图谱</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">博客模板</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">Android源码</a>
               </li>
              
               <li class="article-tag-list-item">
