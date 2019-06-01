@@ -204,14 +204,11 @@ var _hmt = _hmt || [];
     <div class="article-entry" itemprop="articleBody">
       
         <a id="more"></a>
-<p>#前言#<br>  Handler对于开发者来说都不陌生,但是那么它到底为什么而产生.又解决了那些问题呢?带着这些疑问来解读Handler通讯的机制.站在Android系统整体角度来分析Handler源码的实现原理.</p>
+<h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>  Handler对于开发者来说都不陌生,但是那么它到底为什么而产生.又解决了那些问题呢?带着这些疑问来解读Handler通讯的机制.站在Android系统整体角度来分析Handler源码的实现原理.</p>
 <p> Android 的显示屏幕是以60Hz/s来刷新的,相当于加载每一帧的时间为16ms,在Android系统每隔16ms就会发出一次VSYNC信号对UI界面进行渲染,我们必须要保证我们的UI线程的代码在16ms内执行完毕,否则就会产生丢帧现象,导致界面卡顿.<strong>    为了保证UI线程在16ms内执行完毕,那么就要必须要将耗时的操作放到子线程中执行.为了解决UI线程与子线程之间信息交互传递的问题,就产生了Handler通讯机制. </strong></p>
-<p>#简介#</p>
-<p> ##定义##<br> Handler通讯机制是Android中的消息传递机制.</p>
-<p> ##作用##<br> 用于UI线程与子线程之间的通讯,将耗时操作放到子线程中执行,然后将子线程执行的结果告诉UI线程的一系列消息传递交互机制.达到在16ms内完成UI界面的绘制,所以它在Android整体系统的角色不言而喻.</p>
-<p>#知识点#</p>
-<p> ##关键因子##</p>
-<ul>
+<h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><h2 id="定义"><a href="#定义" class="headerlink" title="定义"></a>定义</h2><p> Handler通讯机制是Android中的消息传递机制.</p>
+<h2 id="作用"><a href="#作用" class="headerlink" title="作用"></a>作用</h2><p> 用于UI线程与子线程之间的通讯,将耗时操作放到子线程中执行,然后将子线程执行的结果告诉UI线程的一系列消息传递交互机制.达到在16ms内完成UI界面的绘制,所以它在Android整体系统的角色不言而喻.</p>
+<h1 id="知识点"><a href="#知识点" class="headerlink" title="知识点"></a>知识点</h1><h2 id="关键因子"><a href="#关键因子" class="headerlink" title="关键因子"></a>关键因子</h2><ul>
 <li><p><strong>主线程</strong><br><strong>定义:</strong> app第一次启动时会同时启动一条主线程（MainThread）<br><strong>作用:</strong> 主线程主要负责处理与UI相关的事件，所以主线程又叫UI线程  </p>
 </li>
 <li><p><strong>Handler</strong><br><strong>定义:</strong> 线程信息交互通讯的管理者.<br><strong>作用:</strong> 主要负责将消息添加到消息队列中和消息队列中取出的消息进行分发.  </p>
@@ -223,7 +220,7 @@ var _hmt = _hmt || [];
 <li><p><strong>MessageQueue</strong><br> <strong>定义:</strong> 一个先进先出的消息队列.可以看做一个list集合.<br> <strong>作用:</strong> 存放Handler发送的消息. </p>
 </li>
 </ul>
-<p>##使用方式##<br> 1.发送消息,使用handler.sendMessage(message)或者handler.post(new Runnable(){})一系列方法将消息发送到MessageQueue中.</p>
+<h2 id="使用方式"><a href="#使用方式" class="headerlink" title="使用方式"></a>使用方式</h2><p> 1.发送消息,使用handler.sendMessage(message)或者handler.post(new Runnable(){})一系列方法将消息发送到MessageQueue中.</p>
 <p> 2.接收消息.使用public void handleMessage(Message msg){}处理消息.</p>
 <h2 id="工作流程分析"><a href="#工作流程分析" class="headerlink" title="工作流程分析"></a>工作流程分析</h2><p>  知道了Handler通讯机制中的关键因子,接下来就分析下Handler通讯机制的具体工作过程.首先分析下消息的发送过程.</p>
 <h4 id="Handler-发送消息过程"><a href="#Handler-发送消息过程" class="headerlink" title="Handler 发送消息过程"></a>Handler 发送消息过程</h4><p>  发送消息调用了sendMessage(),在Handler类中处理过程为</p>
@@ -240,8 +237,7 @@ var _hmt = _hmt || [];
     }
     return queue.enqueueMessage(msg, uptimeMillis);
 }
-</code></pre><p> ####MessageQueue存储消息过程####</p>
-<pre><code> boolean enqueueMessage(Message msg, long when) {
+</code></pre><h4 id="MessageQueue存储消息过程"><a href="#MessageQueue存储消息过程" class="headerlink" title="MessageQueue存储消息过程"></a>MessageQueue存储消息过程</h4><pre><code> boolean enqueueMessage(Message msg, long when) {
     # Handler为空,抛异常
     if (msg.target == null) {
         throw new IllegalArgumentException(&quot;Message must have a target.&quot;);
@@ -293,7 +289,6 @@ var _hmt = _hmt || [];
         #我理解为实际上这个操作是在内存中对这个MessageQueue生成了一个唯一的标识符,
         #并增加了这个标识符的弱引用计数,而上一方法将Hanler也保存在了msg.target中,
         #这意味着Android系统的垃圾回收机制不会回收这个Handler以及Handler所持有的所有对象.
-        #看到这里瞬间明白,万变不离其宗
         // We can assume mPtr != 0 because mQuitting is false.
         if (needWake) {
             nativeWake(mPtr);
@@ -516,19 +511,17 @@ public void dispatchMessage(Message msg) {
         handleMessage(msg);
     }
 }
-</code></pre><p>##Handler关键因子的关系##</p>
-<ul>
+</code></pre><h2 id="Handler关键因子的关系"><a href="#Handler关键因子的关系" class="headerlink" title="Handler关键因子的关系"></a>Handler关键因子的关系</h2><ul>
 <li>每个Handler对应一个Looper和一个MessageQueue.</li>
 <li>一个Looper可以被多个Handler所引用.</li>
 <li>一个线程对应多个Handler.</li>
 <li>一个MessageQueue对应多个Message</li>
 </ul>
-<p>##说明##<br>   <strong>文章中所引用的Android源代码版本为Android-26</strong></p>
-<p>#总结#<br> Handler通讯机制简单易用,仔细阅读源码会发现Android系统在处理实际面临的问题的时候所采用的非常巧妙的构思以及强大的脑回路,让人拍案叫绝.总结下以上的知识点.</p>
+<h2 id="说明"><a href="#说明" class="headerlink" title="说明"></a>说明</h2><p>   <strong>文章中所引用的Android源代码版本为Android-26</strong></p>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p> Handler通讯机制简单易用,仔细阅读源码会发现Android系统在处理实际面临的问题的时候所采用的非常巧妙的构思以及强大的脑回路,让人拍案叫绝.总结下以上的知识点.</p>
 <p> Handler通讯机制是包含Handler,Looper,MessageQueue,Message,ThreadLocal关键因子的一套消息交互传递机制.<br> Handler创建前必须先创建Looper.主线程Looper由ActivityThread创建.且主线程的Looper不能退出.<br> 异步线程需要自己手动调用looper.quit()退出,系统会注销当前MessageQueue的标识符,等待系统GC.</p>
 <p>最后放一张主线程与工作线程信息交互的流程图<br><img src="Handler交互流程.jpg" alt></p>
-<p>#####后续文章#####</p>
-<p>Handler通讯造成的内存泄漏问题?<br>已经发送了的message要怎么更改呢?</p>
+<h2 id="后续文章"><a href="#后续文章" class="headerlink" title="后续文章"></a>后续文章</h2><p>Handler通讯造成的内存泄漏问题?<br>已经发送了的message要怎么更改呢?</p>
 
       
 	  <!--版权声明-->
@@ -1687,11 +1680,11 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">不蒜子</a>
+                <a href="javascript:void(0)" class="js-tag color2">Handler通讯机制</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">Handler通讯机制</a>
+                <a href="javascript:void(0)" class="js-tag color4">不蒜子</a>
               </li>
             
             <div class="clearfix"></div>
