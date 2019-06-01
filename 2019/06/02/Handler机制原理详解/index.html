@@ -12,17 +12,17 @@
 <meta name="keywords" content="Android源码,Handler通讯机制">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Handler机制原理详解">
-<meta property="og:url" content="https://one-token.github.io/2019/06/24/Handler机制原理详解/index.html">
+<meta property="og:url" content="https://one-token.github.io/2019/06/02/Handler机制原理详解/index.html">
 <meta property="og:site_name" content="二维世界">
 <meta property="og:description" content="#前言#  Handler对于开发者来说都不陌生,但是那么它到底为什么而产生.又解决了那些问题呢?带着这些疑问来解读Handler通讯的机制.站在Android系统整体角度来分析Handler源码的实现原理.  Android 的显示屏幕是以60Hz/s来刷新的,相当于加载每一帧的时间为16ms,在Android系统每隔16ms就会发出一次VSYNC信号对UI界面进行渲染,我们必须要保证我们的UI">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:image" content="https://one-token.github.io/2019/06/24/Handler机制原理详解/handler机制.png">
-<meta property="og:image" content="https://one-token.github.io/2019/06/24/Handler机制原理详解/Handler交互流程.jpg">
-<meta property="og:updated_time" content="2019-06-01T23:27:10.453Z">
+<meta property="og:image" content="https://one-token.github.io/2019/06/02/Handler机制原理详解/handler机制.png">
+<meta property="og:image" content="https://one-token.github.io/2019/06/02/Handler机制原理详解/Handler交互流程.jpg">
+<meta property="og:updated_time" content="2019-06-01T23:29:28.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Handler机制原理详解">
 <meta name="twitter:description" content="#前言#  Handler对于开发者来说都不陌生,但是那么它到底为什么而产生.又解决了那些问题呢?带着这些疑问来解读Handler通讯的机制.站在Android系统整体角度来分析Handler源码的实现原理.  Android 的显示屏幕是以60Hz/s来刷新的,相当于加载每一帧的时间为16ms,在Android系统每隔16ms就会发出一次VSYNC信号对UI界面进行渲染,我们必须要保证我们的UI">
-<meta name="twitter:image" content="https://one-token.github.io/2019/06/24/Handler机制原理详解/handler机制.png">
+<meta name="twitter:image" content="https://one-token.github.io/2019/06/02/Handler机制原理详解/handler机制.png">
   
     <link rel="alternative" href="/atom.xml" title="二维世界" type="application/atom+xml">
   
@@ -197,8 +197,8 @@ var _hmt = _hmt || [];
   
 
         
-        <a href="/2019/06/24/Handler机制原理详解/" class="archive-article-date">
-  	<time datetime="2019-06-24T12:36:30.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2019-06-24</time>
+        <a href="/2019/06/02/Handler机制原理详解/" class="archive-article-date">
+  	<time datetime="2019-06-02T12:36:30.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2019-06-02</time>
 </a>
         
       </header>
@@ -543,7 +543,7 @@ public void dispatchMessage(Message msg) {
 			
 			<br>
 			<strong>本文链接：</strong>
-			<a rel="链接" href="https://one-token.github.io/2019/06/24/Handler机制原理详解/">https://one-token.github.io/2019/06/24/Handler机制原理详解/</a>
+			<a rel="链接" href="https://one-token.github.io/2019/06/02/Handler机制原理详解/">https://one-token.github.io/2019/06/02/Handler机制原理详解/</a>
 			<br>
 			<strong>版权声明：</strong>
 			本作品采用
@@ -664,7 +664,7 @@ public void dispatchMessage(Message msg) {
     <a class="close js-modal-close" href="javascript:;"><i class="icon icon-close"></i></a>
     <p>扫一扫，分享到微信</p>
     <div class="wx-qrcode">
-      <img src="//pan.baidu.com/share/qrcode?url=https://one-token.github.io/2019/06/24/Handler机制原理详解/" alt="微信分享二维码">
+      <img src="//pan.baidu.com/share/qrcode?url=https://one-token.github.io/2019/06/02/Handler机制原理详解/" alt="微信分享二维码">
     </div>
 </div>
 
@@ -863,26 +863,6 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
           <ul class="article-tag-list" q-show="showTags">
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">博客模板</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">Android源码</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">Android 知识体系图谱</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">随笔</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">Handler通讯机制</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">github个人博客搭建</a>
               </li>
              
@@ -900,6 +880,26 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">OpenMarkdown</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">随笔</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">Android 知识体系图谱</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">博客模板</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">Android源码</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">Handler通讯机制</a>
               </li>
              
               <li class="article-tag-list-item">
