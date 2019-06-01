@@ -203,326 +203,11 @@ var _hmt = _hmt || [];
 	<div>
     <div class="article-entry" itemprop="articleBody">
       
-        <a id="more"></a>
-<h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>  Handler对于开发者来说都不陌生,但是那么它到底为什么而产生.又解决了那些问题呢?带着这些疑问来解读Handler通讯的机制.站在Android系统整体角度来分析Handler源码的实现原理.</p>
-<p> Android 的显示屏幕是以60Hz/s来刷新的,相当于加载每一帧的时间为16ms,在Android系统每隔16ms就会发出一次VSYNC信号对UI界面进行渲染,我们必须要保证我们的UI线程的代码在16ms内执行完毕,否则就会产生丢帧现象,导致界面卡顿.<strong>    为了保证UI线程在16ms内执行完毕,那么就要必须要将耗时的操作放到子线程中执行.为了解决UI线程与子线程之间信息交互传递的问题,就产生了Handler通讯机制. </strong></p>
-<h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><h2 id="定义"><a href="#定义" class="headerlink" title="定义"></a>定义</h2><p> Handler通讯机制是Android中的消息传递机制.</p>
-<h2 id="作用"><a href="#作用" class="headerlink" title="作用"></a>作用</h2><p> 用于UI线程与子线程之间的通讯,将耗时操作放到子线程中执行,然后将子线程执行的结果告诉UI线程的一系列消息传递交互机制.达到在16ms内完成UI界面的绘制,所以它在Android整体系统的角色不言而喻.</p>
-<h1 id="知识点"><a href="#知识点" class="headerlink" title="知识点"></a>知识点</h1><h2 id="关键因子"><a href="#关键因子" class="headerlink" title="关键因子"></a>关键因子</h2><ul>
-<li><p><strong>主线程</strong><br><strong>定义:</strong> app第一次启动时会同时启动一条主线程（MainThread）<br><strong>作用:</strong> 主线程主要负责处理与UI相关的事件，所以主线程又叫UI线程  </p>
-</li>
-<li><p><strong>Handler</strong><br><strong>定义:</strong> 线程信息交互通讯的管理者.<br><strong>作用:</strong> 主要负责将消息添加到消息队列中和消息队列中取出的消息进行分发.  </p>
-</li>
-<li><p><strong>Looper</strong><br>  <strong>定义:</strong> 轮询器,一个无限for循环.<br>  <strong>作用:</strong> 不断从MessageQueue中取出消息并交由Handler分发 </p>
-</li>
-<li><p><strong>Message</strong><br> <strong>定义:</strong> 消息实体,封装了线程间信息交互传递的数据的数据对象.<br> <strong>作用:</strong> 子线程与主线程通信的信息载体.将子线程的信息交由主线程处理  </p>
-</li>
-<li><p><strong>MessageQueue</strong><br> <strong>定义:</strong> 一个先进先出的消息队列.可以看做一个list集合.<br> <strong>作用:</strong> 存放Handler发送的消息. </p>
-</li>
-</ul>
-<h2 id="使用方式"><a href="#使用方式" class="headerlink" title="使用方式"></a>使用方式</h2><p> 1.发送消息,使用handler.sendMessage(message)或者handler.post(new Runnable(){})一系列方法将消息发送到MessageQueue中.</p>
-<p> 2.接收消息.使用public void handleMessage(Message msg){}处理消息.</p>
-<h2 id="工作流程分析"><a href="#工作流程分析" class="headerlink" title="工作流程分析"></a>工作流程分析</h2><p>  知道了Handler通讯机制中的关键因子,接下来就分析下Handler通讯机制的具体工作过程.首先分析下消息的发送过程.</p>
-<h4 id="Handler-发送消息过程"><a href="#Handler-发送消息过程" class="headerlink" title="Handler 发送消息过程"></a>Handler 发送消息过程</h4><p>  发送消息调用了sendMessage(),在Handler类中处理过程为</p>
-<pre><code>sendMessage(msg)
-  -&gt;sendMessageDelayed(msg, 0)
-    -&gt;sendMessageAtTime(msg,uptimeMillis)
-      -&gt;enqueueMessage(queue, msg, uptimeMillis)
-</code></pre><p> 最终通过enqueueMessage()方法将消息添加到消息队列.</p>
-<pre><code>private boolean enqueueMessage(MessageQueue queue, Message msg, long uptimeMillis) {
-    #将Handler保存在了msg.target中
-    msg.target = this;
-    if (mAsynchronous) {
-        msg.setAsynchronous(true);
-    }
-    return queue.enqueueMessage(msg, uptimeMillis);
-}
-</code></pre><h4 id="MessageQueue存储消息过程"><a href="#MessageQueue存储消息过程" class="headerlink" title="MessageQueue存储消息过程"></a>MessageQueue存储消息过程</h4><pre><code> boolean enqueueMessage(Message msg, long when) {
-    # Handler为空,抛异常
-    if (msg.target == null) {
-        throw new IllegalArgumentException(&quot;Message must have a target.&quot;);
-    }
-    # msg不能是正在处理或者已经被回收的消息
-    if (msg.isInUse()) {
-        throw new IllegalStateException(msg + &quot; This message is already in use.&quot;);
-    }
-    # 如果Handler已经被回收,就将这个待处理的msg销毁
-    synchronized (this) {
-        if (mQuitting) {
-            IllegalStateException e = new IllegalStateException(
-                    msg.target + &quot; sending message to a Handler on a dead thread&quot;);
-            Log.w(TAG, e.getMessage(), e);
-            msg.recycle();
-            return false;
-        }
-        # 标记这个消息正在被使用,然后进入消息处理流程
-        msg.markInUse();
-        msg.when = when;
-        Message p = mMessages;
-        boolean needWake;
-        # 空消息处理
-        if (p == null || when == 0 || when &lt; p.when) {
-            // New head, wake up the event queue if blocked.
-            msg.next = p;
-            mMessages = msg;
-            needWake = mBlocked;
-        } else {
-            // Inserted within the middle of the queue.  Usually we don&apos;t have to wake
-            // up the event queue unless there is a barrier at the head of the queue
-            // and the message is the earliest asynchronous message in the queue.
-             #判断当前消息是否正在被处理,以及发送msg的Handler是否被销毁,是否异步执行
-            needWake = mBlocked &amp;&amp; p.target == null &amp;&amp; msg.isAsynchronous();
-            Message prev;
-            for (; ; ) {
-                prev = p;
-                p = p.next;
-                if (p == null || when &lt; p.when) {
-                    break;
-                }
-                if (needWake &amp;&amp; p.isAsynchronous()) {
-                    needWake = false;
-                }
-            }
-            msg.next = p; // invariant: p == prev.next
-            prev.next = msg;
-        }
-        #我理解为实际上这个操作是在内存中对这个MessageQueue生成了一个唯一的标识符,
-        #并增加了这个标识符的弱引用计数,而上一方法将Hanler也保存在了msg.target中,
-        #这意味着Android系统的垃圾回收机制不会回收这个Handler以及Handler所持有的所有对象.
-        // We can assume mPtr != 0 because mQuitting is false.
-        if (needWake) {
-            nativeWake(mPtr);
-        }
-    }
-    return true;
-}
-</code></pre><ul>
-<li>形象图<br><img src="handler机制.png" alt></li>
-</ul>
-<h4 id="Looper轮询机制"><a href="#Looper轮询机制" class="headerlink" title="Looper轮询机制"></a>Looper轮询机制</h4><p>分析完了Handler发送消息流程,那么接下来就分析下Handler处理消息流程.通常在非主线程中实现Handler的消息通讯机制流程是这样.</p>
-<pre><code>class LooperThread extends Thread {
-     public Handler mHandler;
-       public void run() {
-         Looper.prepare();
-          mHandler = new Handler() {
-             public void handleMessage(Message msg) {
-                // process incoming messages here
-             }
-         };
-         Looper.loop();
-     }
- }
-</code></pre><p>在主线程中,它是在ActivityThread的main()方法创建的.并且在主线程中创建的Looper是不可以被退出的.</p>
-<pre><code>public static void main(String[] args) {
-    Trace.traceBegin(Trace.TRACE_TAG_ACTIVITY_MANAGER, &quot;ActivityThreadMain&quot;);
-    // ......do something.....
-
-    Looper.prepareMainLooper();
-
-    ActivityThread thread = new ActivityThread();
-    thread.attach(false);
-
-    if (sMainThreadHandler == null) {
-        sMainThreadHandler = thread.getHandler();
-    }
-
-    if (false) {
-        Looper.myLooper().setMessageLogging(new
-                LogPrinter(Log.DEBUG, &quot;ActivityThread&quot;));
-    }
-
-    // End of event ActivityThreadMain.
-    Trace.traceEnd(Trace.TRACE_TAG_ACTIVITY_MANAGER);
-    Looper.loop();
-
-    throw new RuntimeException(&quot;Main thread loop unexpectedly exited&quot;);
-}
-</code></pre><p>每个Looper对象都保存了对当前线程的引用</p>
-<pre><code>static final ThreadLocal&lt;Looper&gt; sThreadLocal = new ThreadLocal&lt;Looper&gt;();
-</code></pre><p>Looper对象创建完成后最终都得调用 Looper.loop() 方法从消息队列中取出消息.</p>
-<pre><code>  public static void loop() {
-    # 所有的Looper对象都存储在ThreadLocal中的Entry中. 
-    final Looper me = myLooper();
-    # Looper初始化校验
-    if (me == null) {
-        throw new RuntimeException(&quot;No Looper; Looper.prepare() wasn&apos;t called on this thread.&quot;);
-    }
-    final MessageQueue queue = me.mQueue;
-
-    // Make sure the identity of this thread is that of the local process,
-    // and keep track of what that identity token actually is.
-    Binder.clearCallingIdentity();
-    final long ident = Binder.clearCallingIdentity();
-    #开始循环取消息
-    for (;;) {
-        #Looper中的消息取出最后交给了messagequeue来处理
-        Message msg = queue.next(); // might block
-        if (msg == null) {
-            // No message indicates that the message queue is quitting.
-            return;
-        }
-
-        // This must be in a local variable, in case a UI event sets the logger
-        final Printer logging = me.mLogging;
-        if (logging != null) {
-            logging.println(&quot;&gt;&gt;&gt;&gt;&gt; Dispatching to &quot; + msg.target + &quot; &quot; +
-                    msg.callback + &quot;: &quot; + msg.what);
-        }    
-        #如果设置该时间值，一旦消息分发花费的时间超过这个时间，looper将显示警告日志
-        final long slowDispatchThresholdMs = me.mSlowDispatchThresholdMs;
-        final long traceTag = me.mTraceTag;
-        if (traceTag != 0 &amp;&amp; Trace.isTagEnabled(traceTag)) {
-            Trace.traceBegin(traceTag, msg.target.getTraceName(msg));
-        }
-        final long start = (slowDispatchThresholdMs == 0) ? 0 : SystemClock.uptimeMillis();
-        final long end;
-        try {
-            #当前msg的分发,在将消息压入队列前就已经将对应的Handler保存在了msg.target中.
-            #所以这里直接调用对应的Handler来分发消息
-            msg.target.dispatchMessage(msg);
-            end = (slowDispatchThresholdMs == 0) ? 0 : SystemClock.uptimeMillis();
-        } finally {
-            if (traceTag != 0) {
-                Trace.traceEnd(traceTag);
-            }
-        }
-        if (slowDispatchThresholdMs &gt; 0) {
-            final long time = end - start;
-            if (time &gt; slowDispatchThresholdMs) {
-                Slog.w(TAG, &quot;Dispatch took &quot; + time + &quot;ms on &quot;
-                        + Thread.currentThread().getName() + &quot;, h=&quot; +
-                        msg.target + &quot; cb=&quot; + msg.callback + &quot; msg=&quot; + msg.what);
-            }
-        }
-        if (logging != null) {
-            logging.println(&quot;&lt;&lt;&lt;&lt;&lt; Finished to &quot; + msg.target + &quot; &quot; + msg.callback);
-        }
-        final long newIdent = Binder.clearCallingIdentity();
-        if (ident != newIdent) {
-            Log.wtf(TAG, &quot;Thread identity changed from 0x&quot;
-                    + Long.toHexString(ident) + &quot; to 0x&quot;
-                    + Long.toHexString(newIdent) + &quot; while dispatching to &quot;
-                    + msg.target.getClass().getName() + &quot; &quot;
-                    + msg.callback + &quot; what=&quot; + msg.what);
-        }
-        #销毁这个msg对象
-        msg.recycleUnchecked();
-    }
-}
-
- 接下来我们看看MessageQueue到底怎么处理的.
-
- Message next() {
-    final long ptr = mPtr;
-    if (ptr == 0) {
-        return null;
-    }
-    int pendingIdleHandlerCount = -1; // -1 only during first iteration
-    int nextPollTimeoutMillis = 0;
-    for (; ; ) {
-        if (nextPollTimeoutMillis != 0) {
-            Binder.flushPendingCommands();
-        }
-        nativePollOnce(ptr, nextPollTimeoutMillis);
-        synchronized (this) {
-            final long now = SystemClock.uptimeMillis();
-            Message prevMsg = null;
-            Message msg = mMessages;
-            if (msg != null &amp;&amp; msg.target == null) {
-                do {
-                    prevMsg = msg;
-                    msg = msg.next;
-                } while (msg != null &amp;&amp; !msg.isAsynchronous());
-            }
-            if (msg != null) {
-                if (now &lt; msg.when) {
-                #如果下一条消息还没有准备好就设置一个超时时间，当它准备好时唤醒它
-                    nextPollTimeoutMillis = (int) Math.min(msg.when - now, Integer.MAX_VALUE);
-                } else {
-                #返回一个消息对象
-                    mBlocked = false;
-                    if (prevMsg != null) {
-                        prevMsg.next = msg.next;
-                    } else {
-                        mMessages = msg.next;
-                    }
-                    msg.next = null;
-                    if (DEBUG) Log.v(TAG, &quot;Returning message: &quot; + msg);
-                    msg.markInUse();
-                    return msg;
-                }
-            } else {
-                nextPollTimeoutMillis = -1;
-            }
-            #处理完所有被挂起的消息后,且对应的线程被销毁了,那么就注销对应的MessageQueue的标识符
-            #并且减少当前MessageQueue对象的引用计数,方便系统对它所占用的内存进行回收
-            if (mQuitting) {
-                dispose();
-                return null;
-            }
-            //这里应该是对Handler通讯机制历史版本兼容
-            if (pendingIdleHandlerCount &lt; 0
-                    &amp;&amp; (mMessages == null || now &lt; mMessages.when)) {
-                pendingIdleHandlerCount = mIdleHandlers.size();
-            }
-            if (pendingIdleHandlerCount &lt;= 0) {
-                mBlocked = true;
-                continue;
-            }
-
-            if (mPendingIdleHandlers == null) {
-                mPendingIdleHandlers = new IdleHandler[Math.max(pendingIdleHandlerCount, 4)];
-            }
-            mPendingIdleHandlers = mIdleHandlers.toArray(mPendingIdleHandlers);
-        }
-
-        for (int i = 0; i &lt; pendingIdleHandlerCount; i++) {
-            final IdleHandler idler = mPendingIdleHandlers[i];
-            mPendingIdleHandlers[i] = null; // release the reference to the handler
-            boolean keep = false;
-            try {
-                keep = idler.queueIdle();
-            } catch (Throwable t) {
-                Log.wtf(TAG, &quot;IdleHandler threw exception&quot;, t);
-            }
-            if (!keep) {
-                synchronized (this) {
-                    mIdleHandlers.remove(idler);
-                }
-            }
-        }
-        pendingIdleHandlerCount = 0;
-        nextPollTimeoutMillis = 0;
-    }
-}
-</code></pre><h4 id="Handler分发事件"><a href="#Handler分发事件" class="headerlink" title="Handler分发事件"></a>Handler分发事件</h4><p> 最后,将msg消息又传递给了Handler来分发处理.定义的回调的就调用回调函数,未定义回调方法的就交给Handler的子类去处理.</p>
-<pre><code>#交由Handler或它的子类处理    
-public void handleMessage(Message msg) {  }
-
-public void dispatchMessage(Message msg) {
-    if (msg.callback != null) {
-        handleCallback(msg);
-    } else {
-        if (mCallback != null) {
-            if (mCallback.handleMessage(msg)) {
-                return;
-            }
-        }
-        handleMessage(msg);
-    }
-}
-</code></pre><h2 id="Handler关键因子的关系"><a href="#Handler关键因子的关系" class="headerlink" title="Handler关键因子的关系"></a>Handler关键因子的关系</h2><ul>
-<li>每个Handler对应一个Looper和一个MessageQueue.</li>
-<li>一个Looper可以被多个Handler所引用.</li>
-<li>一个线程对应多个Handler.</li>
-<li>一个MessageQueue对应多个Message</li>
-</ul>
-<h2 id="说明"><a href="#说明" class="headerlink" title="说明"></a>说明</h2><p>   <strong>文章中所引用的Android源代码版本为Android-26</strong></p>
-<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p> Handler通讯机制简单易用,仔细阅读源码会发现Android系统在处理实际面临的问题的时候所采用的非常巧妙的构思以及强大的脑回路,让人拍案叫绝.总结下以上的知识点.</p>
-<p> Handler通讯机制是包含Handler,Looper,MessageQueue,Message,ThreadLocal关键因子的一套消息交互传递机制.<br> Handler创建前必须先创建Looper.主线程Looper由ActivityThread创建.且主线程的Looper不能退出.<br> 异步线程需要自己手动调用looper.quit()退出,系统会注销当前MessageQueue的标识符,等待系统GC.</p>
-<p>最后放一张主线程与工作线程信息交互的流程图<br><img src="Handler交互流程.jpg" alt></p>
-<h2 id="后续文章"><a href="#后续文章" class="headerlink" title="后续文章"></a>后续文章</h2><p>Handler通讯造成的内存泄漏问题?<br>已经发送了的message要怎么更改呢?</p>
-
+        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>  Handler对于开发者来说都不陌生,但是那么它到底为什么而产生.又解决了那些问题呢?带着这些疑问来解读Handler通讯的机制.站在Android系统整体角度来分析Handler源码的实现原理.</p>
+<p> Android 的显示屏幕是以60Hz/s来刷新的,相当于加载每一帧的时间为16ms,在Android系统每隔16ms就会发出一次VSYNC信号对UI界面进行渲染,我们必须要保证我们的UI线程的代码在16ms内执行完毕,否则就会产生丢帧现象,导致界面卡顿.<strong>    为了保证UI线程在16ms内执行完毕,那么就要必须要将耗时的操作放到子线程中执行.为了解决UI线程与子线程之间信息交互传递的问题,就产生了Handler通讯机制. </strong><br>
+        
+          <a class="article-more-a" href="/2019/06/02/Handler机制原理详解/#more">more >></a>
+        
       
 	  <!--版权声明-->
 			 
@@ -532,7 +217,7 @@ public void dispatchMessage(Message msg) {
 
 	  
       
-    </div>
+    </p></div>
     <div class="article-info article-info-index">
       
       
@@ -641,11 +326,11 @@ public void dispatchMessage(Message msg) {
 		<ul class="article-tag-list">
 			 
         		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color5">Android 知识体系图谱</a>
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">随笔</a>
         		</li>
       		 
         		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">随笔</a>
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color5">Android 知识体系图谱</a>
         		</li>
       		
 		</ul>
@@ -721,300 +406,12 @@ public void dispatchMessage(Message msg) {
 	<div>
     <div class="article-entry" itemprop="articleBody">
       
-        <a id="more"></a>
-<p>##问题1 ##<br>问题描述: </p>
+        <p>##问题1 ##<br>问题描述: </p>
 <pre><code>hexo gitalk集成报错 Error: Not Found
-</code></pre><p>问题原因:</p>
-<p>由于gitalk id有长度限, 最大50个字符</p>
-<p>解决思路:</p>
-<p>采用MD5加密gitalk的id.md5.js文件的放置路径为</p>
-<!-- more -->
-<blockquote>
-<p>E:\MyGithubSpace\hexo\themes\yilia\source.</p>
-</blockquote>
-<p>md5.js文件的内容为</p>
-<pre><code>/*
- * JavaScript MD5
- * https://github.com/blueimp/JavaScript-MD5
- *
- * Copyright 2011, Sebastian Tschan
- * https://blueimp.net
- *
- * Licensed under the MIT license:
- * https://opensource.org/licenses/MIT
- *
- * Based on
- * A JavaScript implementation of the RSA Data Security, Inc. MD5 Message
- * Digest Algorithm, as defined in RFC 1321.
- * Version 2.2 Copyright (C) Paul Johnston 1999 - 2009
- * Other contributors: Greg Holt, Andrew Kepert, Ydnar, Lostinet
- * Distributed under the BSD License
- * See http://pajhome.org.uk/crypt/md5 for more info.
- */
-
-/* global define */
-
-(function ($) {
-  &apos;use strict&apos;
-
-  /*
-  * Add integers, wrapping at 2^32. This uses 16-bit operations internally
-  * to work around bugs in some JS interpreters.
-  */
-  function safeAdd (x, y) {
-    var lsw = (x &amp; 0xffff) + (y &amp; 0xffff)
-    var msw = (x &gt;&gt; 16) + (y &gt;&gt; 16) + (lsw &gt;&gt; 16)
-    return (msw &lt;&lt; 16) | (lsw &amp; 0xffff)
-  }
-
-  /*
-  * Bitwise rotate a 32-bit number to the left.
-  */
-  function bitRotateLeft (num, cnt) {
-    return (num &lt;&lt; cnt) | (num &gt;&gt;&gt; (32 - cnt))
-  }
-
-  /*
-  * These functions implement the four basic operations the algorithm uses.
-  */
-  function md5cmn (q, a, b, x, s, t) {
-    return safeAdd(bitRotateLeft(safeAdd(safeAdd(a, q), safeAdd(x, t)), s), b)
-  }
-  function md5ff (a, b, c, d, x, s, t) {
-    return md5cmn((b &amp; c) | (~b &amp; d), a, b, x, s, t)
-  }
-  function md5gg (a, b, c, d, x, s, t) {
-    return md5cmn((b &amp; d) | (c &amp; ~d), a, b, x, s, t)
-  }
-  function md5hh (a, b, c, d, x, s, t) {
-    return md5cmn(b ^ c ^ d, a, b, x, s, t)
-  }
-  function md5ii (a, b, c, d, x, s, t) {
-    return md5cmn(c ^ (b | ~d), a, b, x, s, t)
-  }
-
-  /*
-  * Calculate the MD5 of an array of little-endian words, and a bit length.
-  */
-  function binlMD5 (x, len) {
-    /* append padding */
-    x[len &gt;&gt; 5] |= 0x80 &lt;&lt; (len % 32)
-    x[((len + 64) &gt;&gt;&gt; 9 &lt;&lt; 4) + 14] = len
-
-    var i
-    var olda
-    var oldb
-    var oldc
-    var oldd
-    var a = 1732584193
-    var b = -271733879
-    var c = -1732584194
-    var d = 271733878
-
-    for (i = 0; i &lt; x.length; i += 16) {
-      olda = a
-      oldb = b
-      oldc = c
-      oldd = d
-
-      a = md5ff(a, b, c, d, x[i], 7, -680876936)
-      d = md5ff(d, a, b, c, x[i + 1], 12, -389564586)
-      c = md5ff(c, d, a, b, x[i + 2], 17, 606105819)
-      b = md5ff(b, c, d, a, x[i + 3], 22, -1044525330)
-      a = md5ff(a, b, c, d, x[i + 4], 7, -176418897)
-      d = md5ff(d, a, b, c, x[i + 5], 12, 1200080426)
-      c = md5ff(c, d, a, b, x[i + 6], 17, -1473231341)
-      b = md5ff(b, c, d, a, x[i + 7], 22, -45705983)
-      a = md5ff(a, b, c, d, x[i + 8], 7, 1770035416)
-      d = md5ff(d, a, b, c, x[i + 9], 12, -1958414417)
-      c = md5ff(c, d, a, b, x[i + 10], 17, -42063)
-      b = md5ff(b, c, d, a, x[i + 11], 22, -1990404162)
-      a = md5ff(a, b, c, d, x[i + 12], 7, 1804603682)
-      d = md5ff(d, a, b, c, x[i + 13], 12, -40341101)
-      c = md5ff(c, d, a, b, x[i + 14], 17, -1502002290)
-      b = md5ff(b, c, d, a, x[i + 15], 22, 1236535329)
-
-      a = md5gg(a, b, c, d, x[i + 1], 5, -165796510)
-      d = md5gg(d, a, b, c, x[i + 6], 9, -1069501632)
-      c = md5gg(c, d, a, b, x[i + 11], 14, 643717713)
-      b = md5gg(b, c, d, a, x[i], 20, -373897302)
-      a = md5gg(a, b, c, d, x[i + 5], 5, -701558691)
-      d = md5gg(d, a, b, c, x[i + 10], 9, 38016083)
-      c = md5gg(c, d, a, b, x[i + 15], 14, -660478335)
-      b = md5gg(b, c, d, a, x[i + 4], 20, -405537848)
-      a = md5gg(a, b, c, d, x[i + 9], 5, 568446438)
-      d = md5gg(d, a, b, c, x[i + 14], 9, -1019803690)
-      c = md5gg(c, d, a, b, x[i + 3], 14, -187363961)
-      b = md5gg(b, c, d, a, x[i + 8], 20, 1163531501)
-      a = md5gg(a, b, c, d, x[i + 13], 5, -1444681467)
-      d = md5gg(d, a, b, c, x[i + 2], 9, -51403784)
-      c = md5gg(c, d, a, b, x[i + 7], 14, 1735328473)
-      b = md5gg(b, c, d, a, x[i + 12], 20, -1926607734)
-
-      a = md5hh(a, b, c, d, x[i + 5], 4, -378558)
-      d = md5hh(d, a, b, c, x[i + 8], 11, -2022574463)
-      c = md5hh(c, d, a, b, x[i + 11], 16, 1839030562)
-      b = md5hh(b, c, d, a, x[i + 14], 23, -35309556)
-      a = md5hh(a, b, c, d, x[i + 1], 4, -1530992060)
-      d = md5hh(d, a, b, c, x[i + 4], 11, 1272893353)
-      c = md5hh(c, d, a, b, x[i + 7], 16, -155497632)
-      b = md5hh(b, c, d, a, x[i + 10], 23, -1094730640)
-      a = md5hh(a, b, c, d, x[i + 13], 4, 681279174)
-      d = md5hh(d, a, b, c, x[i], 11, -358537222)
-      c = md5hh(c, d, a, b, x[i + 3], 16, -722521979)
-      b = md5hh(b, c, d, a, x[i + 6], 23, 76029189)
-      a = md5hh(a, b, c, d, x[i + 9], 4, -640364487)
-      d = md5hh(d, a, b, c, x[i + 12], 11, -421815835)
-      c = md5hh(c, d, a, b, x[i + 15], 16, 530742520)
-      b = md5hh(b, c, d, a, x[i + 2], 23, -995338651)
-
-      a = md5ii(a, b, c, d, x[i], 6, -198630844)
-      d = md5ii(d, a, b, c, x[i + 7], 10, 1126891415)
-      c = md5ii(c, d, a, b, x[i + 14], 15, -1416354905)
-      b = md5ii(b, c, d, a, x[i + 5], 21, -57434055)
-      a = md5ii(a, b, c, d, x[i + 12], 6, 1700485571)
-      d = md5ii(d, a, b, c, x[i + 3], 10, -1894986606)
-      c = md5ii(c, d, a, b, x[i + 10], 15, -1051523)
-      b = md5ii(b, c, d, a, x[i + 1], 21, -2054922799)
-      a = md5ii(a, b, c, d, x[i + 8], 6, 1873313359)
-      d = md5ii(d, a, b, c, x[i + 15], 10, -30611744)
-      c = md5ii(c, d, a, b, x[i + 6], 15, -1560198380)
-      b = md5ii(b, c, d, a, x[i + 13], 21, 1309151649)
-      a = md5ii(a, b, c, d, x[i + 4], 6, -145523070)
-      d = md5ii(d, a, b, c, x[i + 11], 10, -1120210379)
-      c = md5ii(c, d, a, b, x[i + 2], 15, 718787259)
-      b = md5ii(b, c, d, a, x[i + 9], 21, -343485551)
-
-      a = safeAdd(a, olda)
-      b = safeAdd(b, oldb)
-      c = safeAdd(c, oldc)
-      d = safeAdd(d, oldd)
-    }
-    return [a, b, c, d]
-  }
-
-  /*
-  * Convert an array of little-endian words to a string
-  */
-  function binl2rstr (input) {
-    var i
-    var output = &apos;&apos;
-    var length32 = input.length * 32
-    for (i = 0; i &lt; length32; i += 8) {
-      output += String.fromCharCode((input[i &gt;&gt; 5] &gt;&gt;&gt; (i % 32)) &amp; 0xff)
-    }
-    return output
-  }
-
-  /*
-  * Convert a raw string to an array of little-endian words
-  * Characters &gt;255 have their high-byte silently ignored.
-  */
-  function rstr2binl (input) {
-    var i
-    var output = []
-    output[(input.length &gt;&gt; 2) - 1] = undefined
-    for (i = 0; i &lt; output.length; i += 1) {
-      output[i] = 0
-    }
-    var length8 = input.length * 8
-    for (i = 0; i &lt; length8; i += 8) {
-      output[i &gt;&gt; 5] |= (input.charCodeAt(i / 8) &amp; 0xff) &lt;&lt; (i % 32)
-    }
-    return output
-  }
-
-  /*
-  * Calculate the MD5 of a raw string
-  */
-  function rstrMD5 (s) {
-    return binl2rstr(binlMD5(rstr2binl(s), s.length * 8))
-  }
-
-  /*
-  * Calculate the HMAC-MD5, of a key and some data (raw strings)
-  */
-  function rstrHMACMD5 (key, data) {
-    var i
-    var bkey = rstr2binl(key)
-    var ipad = []
-    var opad = []
-    var hash
-    ipad[15] = opad[15] = undefined
-    if (bkey.length &gt; 16) {
-      bkey = binlMD5(bkey, key.length * 8)
-    }
-    for (i = 0; i &lt; 16; i += 1) {
-      ipad[i] = bkey[i] ^ 0x36363636
-      opad[i] = bkey[i] ^ 0x5c5c5c5c
-    }
-    hash = binlMD5(ipad.concat(rstr2binl(data)), 512 + data.length * 8)
-    return binl2rstr(binlMD5(opad.concat(hash), 512 + 128))
-  }
-
-  /*
-  * Convert a raw string to a hex string
-  */
-  function rstr2hex (input) {
-    var hexTab = &apos;0123456789abcdef&apos;
-    var output = &apos;&apos;
-    var x
-    var i
-    for (i = 0; i &lt; input.length; i += 1) {
-      x = input.charCodeAt(i)
-      output += hexTab.charAt((x &gt;&gt;&gt; 4) &amp; 0x0f) + hexTab.charAt(x &amp; 0x0f)
-    }
-    return output
-  }
-
-  /*
-  * Encode a string as utf-8
-  */
-  function str2rstrUTF8 (input) {
-    return unescape(encodeURIComponent(input))
-  }
-
-  /*
-  * Take string arguments and return either raw or hex encoded strings
-  */
-  function rawMD5 (s) {
-    return rstrMD5(str2rstrUTF8(s))
-  }
-  function hexMD5 (s) {
-    return rstr2hex(rawMD5(s))
-  }
-  function rawHMACMD5 (k, d) {
-    return rstrHMACMD5(str2rstrUTF8(k), str2rstrUTF8(d))
-  }
-  function hexHMACMD5 (k, d) {
-    return rstr2hex(rawHMACMD5(k, d))
-  }
-
-  function md5 (string, key, raw) {
-    if (!key) {
-      if (!raw) {
-        return hexMD5(string)
-      }
-      return rawMD5(string)
-    }
-    if (!raw) {
-      return hexHMACMD5(key, string)
-    }
-    return rawHMACMD5(key, string)
-  }
-
-  if (typeof define === &apos;function&apos; &amp;&amp; define.amd) {
-    define(function () {
-      return md5
-    })
-  } else if (typeof module === &apos;object&apos; &amp;&amp; module.exports) {
-    module.exports = md5
-  } else {
-    $.md5 = md5
-  }
-})(this)
-</code></pre><p>本文原始链接:  <a href="https://one-token.github.io/2019/05/25/Github的个人博客搭建中遇到的问题/">https://one-token.github.io/2019/05/25/Github的个人博客搭建中遇到的问题/</a></p>
-
+</code></pre>
+        
+          <a class="article-more-a" href="/2019/05/25/Github个人博客搭建中遇到的问题/#more">more >></a>
+        
       
 	  <!--版权声明-->
 			 
@@ -1033,10 +430,6 @@ public void dispatchMessage(Message msg) {
 		<ul class="article-tag-list">
 			 
         		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">随笔</a>
-        		</li>
-      		 
-        		<li class="article-tag-list-item">
         			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">github个人博客搭建</a>
         		</li>
       		 
@@ -1054,6 +447,10 @@ public void dispatchMessage(Message msg) {
       		 
         		<li class="article-tag-list-item">
         			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">OpenMarkdown</a>
+        		</li>
+      		 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">随笔</a>
         		</li>
       		
 		</ul>
@@ -1129,318 +526,10 @@ public void dispatchMessage(Message msg) {
 	<div>
     <div class="article-entry" itemprop="articleBody">
       
-        <a id="more"></a>
-<h1 id="一-搭建步骤"><a href="#一-搭建步骤" class="headerlink" title="一. 搭建步骤"></a>一. 搭建步骤</h1><p><strong>基础环境</strong><br> <strong> node </strong><br> <strong> git </strong></p>
-<h2 id="1-1-注册账号"><a href="#1-1-注册账号" class="headerlink" title="1.1 注册账号"></a>1.1 注册账号</h2><p>注册一个Github账号,新建一个<strong>用户名.github.io</strong>的项目</p>
-<p>并clone到本地.</p>
-<p><img src="slug.png" alt></p>
-<h2 id="1-2-安装Hexo"><a href="#1-2-安装Hexo" class="headerlink" title="1.2 安装Hexo"></a>1.2 安装Hexo</h2><pre><code>npm install -g hexo-cli
-</code></pre><h2 id="1-3-初始化Hexo"><a href="#1-3-初始化Hexo" class="headerlink" title="1.3 初始化Hexo"></a>1.3 初始化Hexo</h2><p>初始化hexo文件</p>
-<pre><code>hexo init [folder]
-cd &lt;folder&gt;
-npm install
-</code></pre><h2 id="1-4-新建页面"><a href="#1-4-新建页面" class="headerlink" title="1.4 新建页面"></a>1.4 新建页面</h2><pre><code>$ hexo new [layout] &lt;title&gt;
-</code></pre><p>新建一篇文章。如果没有设置 layout 的话，默认使用 _config.yml 中的 default_layout 参数代替。如</p>
-<p>果标题包含空格的话，请使用引号括起来。标题可以不指定,默认为[layout]的内容.</p>
-<h2 id="1-5-生成静态页面"><a href="#1-5-生成静态页面" class="headerlink" title="1.5 生成静态页面"></a>1.5 生成静态页面</h2><pre><code>$ hexo generate
-</code></pre><p>这个命令也可以简写成</p>
-<pre><code>$ hexo g
-</code></pre><h2 id="1-6-本地运行"><a href="#1-6-本地运行" class="headerlink" title="1.6 本地运行"></a>1.6 本地运行</h2><pre><code>$ hexo server
-</code></pre><p>启动服务器。默认情况下，访问网址为： <a href="http://localhost:4000/" target="_blank" rel="noopener">http://localhost:4000/</a></p>
-<table>
-<thead>
-<tr>
-<th><strong>常用选项</strong></th>
-<th><strong>    描述 </strong></th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>-p, –port</td>
-<td>重设端口</td>
-</tr>
-<tr>
-<td>-s, –static</td>
-<td>只使用静态文件</td>
-</tr>
-<tr>
-<td>-l, –log</td>
-<td>启动日记记录，使用覆盖记录格式</td>
-</tr>
-</tbody>
-</table>
-<p>这个命令可以简写成</p>
-<pre><code>$ hexo s
-</code></pre><h2 id="1-7-部署到网站"><a href="#1-7-部署到网站" class="headerlink" title="1.7 部署到网站"></a>1.7 部署到网站</h2><pre><code>$ hexo deploy
-</code></pre><p>这个命令可以简写成 </p>
-<pre><code>$ hexo d
-</code></pre><h2 id="1-8-Hexo-常用命令"><a href="#1-8-Hexo-常用命令" class="headerlink" title="1.8 Hexo 常用命令"></a>1.8 Hexo 常用命令</h2><p> a.清除本地站点缓存并构建</p>
-<pre><code>$ hexo clean &amp;&amp; hexo g
-</code></pre><p> b. 清除本地站点缓存并构建发布</p>
-<pre><code>$ hexo clean &amp;&amp; hexo g -d
-</code></pre><p> c.新建一篇草稿</p>
-<pre><code>$ hexo new draft &quot;new draft&quot;
-</code></pre><p> d.强制预览草稿</p>
-<pre><code>render_drafts: true
-</code></pre><p> e.发布草稿文章</p>
-<pre><code>$ hexo publish [layout] &lt;filename&gt;
-</code></pre><p> f.新建文章分类</p>
-<pre><code>hexo new page categories
-</code></pre><p>打开自己的发布的博客系统</p>
-<blockquote>
-<p><a href="https://one-token.github.io">one-token.github.io</a></p>
-</blockquote>
-<p>默认的样式有点不大满意呢,去这里找个好看的样式换一下吧.</p>
-<blockquote>
-<p><a href="https://hexo.io/themes/" target="_blank" rel="noopener">https://hexo.io/themes/</a></p>
-</blockquote>
-<p>我比较喜欢这款yilia的.下面就来替换默认的theme吧</p>
-<h1 id="二-更换主题"><a href="#二-更换主题" class="headerlink" title="二. 更换主题"></a>二. 更换主题</h1><p>Hexo默认主题<strong>landscape</strong>,这里使用别人已经开发好的主题,切换到hexo根目录中</p>
-<pre><code>git clone https://github.com/litten/hexo-theme-yilia.git themes/yilia
-</code></pre><p>下面就需要修改hexo的配置文件了.</p>
-<h2 id="2-1-配置文件"><a href="#2-1-配置文件" class="headerlink" title="2.1 配置文件"></a>2.1 配置文件</h2><p> 下面列举了HEXO根目录下的_config.yml常用参数的定义.</p>
-<table>
-<thead>
-<tr>
-<th><strong>参数</strong></th>
-<th><strong>    描述 </strong></th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>title</td>
-<td>网站标题</td>
-</tr>
-<tr>
-<td>subtitle</td>
-<td>网站副标题</td>
-</tr>
-<tr>
-<td>description</td>
-<td>网站描述</td>
-</tr>
-<tr>
-<td>author</td>
-<td>您的名字</td>
-</tr>
-<tr>
-<td>language</td>
-<td>网站使用的语言</td>
-</tr>
-<tr>
-<td>timezone</td>
-<td>网站时区。Hexo 默认使用您电脑的时区。时区列表。比如说：America/New_York, Japan, 和 UTC 。</td>
-</tr>
-</tbody>
-</table>
-<table>
-<thead>
-<tr>
-<th><strong>参数</strong></th>
-<th><strong>    描述</strong></th>
-<th style="text-align:center"><strong>默认值</strong></th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>url</td>
-<td>网址</td>
-<td style="text-align:center"></td>
-</tr>
-<tr>
-<td>root</td>
-<td>网站根目录</td>
-<td style="text-align:center"></td>
-</tr>
-<tr>
-<td>permalink</td>
-<td>文章的 永久链接 格式</td>
-<td style="text-align:center"></td>
-</tr>
-<tr>
-<td>permalink_defaults</td>
-<td>永久链接中各部分的默认值</td>
-<td style="text-align:center">22</td>
-</tr>
-</tbody>
-</table>
-<p> 详情请见<strong>Hexo官网文档:</strong></p>
-<blockquote>
-<p><a href="https://hexo.io/zh-cn/docs/configuration" target="_blank" rel="noopener">https://hexo.io/zh-cn/docs/configuration</a></p>
-</blockquote>
-<p>我们只需要找到 <strong>Hexo根目录</strong>下的_config.yml文件.</p>
-<p>将theme参数修改为 <strong>theme: yilia </strong></p>
-<p>这里有点需要注意下:所有变量后的value值在:号后必须要保留空格,否则构建会报错.重新编译部署,执行</p>
-<pre><code>$ hexo  clean &amp;&amp; hexo g -d
-</code></pre><h2 id="2-2-修改Yilia样式中的头像"><a href="#2-2-修改Yilia样式中的头像" class="headerlink" title="2.2 修改Yilia样式中的头像"></a>2.2 修改Yilia样式中的头像</h2><p> 在Hexo目录中新建photos文件夹,然后复制头像到photos中,</p>
-<p> 这是我的头像的文件路径:<strong>E:\hexo\source\assets\img\</strong>.</p>
-<p> 修改<strong>E:\hexo\themes\yilia_config.yml</strong>文件.</p>
-<pre><code>#你的头像url
-avatar: /photos/head.jpg
-</code></pre><p> 重新编译部署</p>
-<pre><code>$ hexo  clean &amp;&amp; hexo g -d
-</code></pre><h2 id="2-3-修改导航栏"><a href="#2-3-修改导航栏" class="headerlink" title="2.3 修改导航栏"></a>2.3 修改导航栏</h2><p> 修改<strong>E:\hexo\themes\yilia_config.yml</strong>文件.找到menu设置菜单分类并制定文件路径</p>
-<pre><code>menu:
-     主页: /
-     随笔: /tags
-    相册: /photos
-     关于: /about
-</code></pre><p>添加分享配置</p>
-<pre><code># SubNav
-subnav:
-  github: &quot;#&quot;
-  weibo: &quot;#&quot;
-  rss: &quot;#&quot;
-  zhihu: &quot;#&quot;
-  #qq: &quot;#&quot;
-  #weixin: &quot;#&quot;
-  #jianshu: &quot;#&quot;
-  #douban: &quot;#&quot;
-  #segmentfault: &quot;#&quot;
-  #bilibili: &quot;#&quot;
-  #acfun: &quot;#&quot;
-  #mail: &quot;mailto:xxx@163.com&quot;
-  #facebook: &quot;#&quot;
-  #google: &quot;#&quot;
-  #twitter: &quot;#&quot;
-  #linkedin: &quot;#&quot;
-</code></pre><p>修改图片样式可以参考:<br><a href="https://blog.csdn.net/csdn_inside/article/details/89159803" target="_blank" rel="noopener">https://blog.csdn.net/csdn_inside/article/details/89159803</a></p>
-<h2 id="2-4-点击出现爱心效果"><a href="#2-4-点击出现爱心效果" class="headerlink" title="2.4 点击出现爱心效果"></a>2.4 点击出现爱心效果</h2><p>修改Hexo 样式文件,不同的Theme修改的文件路径略有区别.但修改的文件大致相同.都是修改 footer.ejs文件.我修改的文件路径是:<strong>E:\hexo\themes\yilia\layout_partial</strong>.</p>
-<p>在文件底部加入</p>
-<pre><code>&lt;!--页面点击小红心--&gt;
-&lt;script type=&quot;text/javascript&quot; src=&quot;/love.js&quot;&gt;&lt;/script&gt;
-</code></pre><p><img src="love.PNG" alt></p>
-<p>love.js的内容</p>
-<pre><code>!function(e,t,a){function n(){c(&quot;.heart{width: 10px;height: 10px;position: fixed;background: #f00;transform: rotate(45deg);-webkit-transform: rotate(45deg);-moz-transform: rotate(45deg);}.heart:after,.heart:before{content: &apos;&apos;;width: inherit;height: inherit;background: inherit;border-radius: 50%;-webkit-border-radius: 50%;-moz-border-radius: 50%;position: fixed;}.heart:after{top: -5px;}.heart:before{left: -5px;}&quot;),o(),r()}function r(){for(var e=0;e&lt;d.length;e++)d[e].alpha&lt;=0?(t.body.removeChild(d[e].el),d.splice(e,1)):(d[e].y--,d[e].scale+=.004,d[e].alpha-=.013,d[e].el.style.cssText=&quot;left:&quot;+d[e].x+&quot;px;top:&quot;+d[e].y+&quot;px;opacity:&quot;+d[e].alpha+&quot;;transform:scale(&quot;+d[e].scale+&quot;,&quot;+d[e].scale+&quot;) rotate(45deg);background:&quot;+d[e].color+&quot;;z-index:99999&quot;);requestAnimationFrame(r)}function o(){var t=&quot;function&quot;==typeof e.onclick&amp;&amp;e.onclick;e.onclick=function(e){t&amp;&amp;t(),i(e)}}function i(e){var a=t.createElement(&quot;div&quot;);a.className=&quot;heart&quot;,d.push({el:a,x:e.clientX-5,y:e.clientY-5,scale:1,alpha:1,color:s()}),t.body.appendChild(a)}function c(e){var a=t.createElement(&quot;style&quot;);a.type=&quot;text/css&quot;;try{a.appendChild(t.createTextNode(e))}catch(t){a.styleSheet.cssText=e}t.getElementsByTagName(&quot;head&quot;)[0].appendChild(a)}function s(){return&quot;rgb(&quot;+~~(255*Math.random())+&quot;,&quot;+~~(255*Math.random())+&quot;,&quot;+~~(255*Math.random())+&quot;)&quot;}var d=[];e.requestAnimationFrame=function(){return e.requestAnimationFrame||e.webkitRequestAnimationFrame||e.mozRequestAnimationFrame||e.oRequestAnimationFrame||e.msRequestAnimationFrame||function(e){setTimeout(e,1e3/60)}}(),n()}(window,document);
-</code></pre><p>love.js文件放在对应theme文件夹的source中.我的路径是: <strong>E:\hexo\themes\yilia\source\love.js</strong></p>
-<h2 id="2-5-不蒜子浏览统计集成"><a href="#2-5-不蒜子浏览统计集成" class="headerlink" title="2.5 不蒜子浏览统计集成"></a>2.5 不蒜子浏览统计集成</h2><p> 与love.js修改的文件相同,添加以下代码到footer.ejs中</p>
-<pre><code> &lt;span id=&quot;busuanzi_container_site_pv&quot; style=&quot;display: inline;&quot;&gt;
-    总访问量: &lt;span id=&quot;busuanzi_value_site_pv&quot;&gt;&lt;/span&gt; 
-&lt;/span&gt;
-|
-&lt;span id=&quot;busuanzi_container_site_uv&quot; style=&quot;display: inline;&quot;&gt;
-    总访客: &lt;span id=&quot;busuanzi_value_site_uv&quot;&gt;&lt;/span&gt;
-&lt;/span&gt;
-</code></pre><p>在footer.ejs底部添加<br> <code>&lt;script async src=&quot;//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js&quot;&gt;&lt;/script&gt;</code></p>
-<p><img src="不蒜子.PNG" alt></p>
-<h2 id="2-6-集成Gitalk评论功能"><a href="#2-6-集成Gitalk评论功能" class="headerlink" title="2.6 集成Gitalk评论功能"></a>2.6 集成Gitalk评论功能</h2><p> a.在E:\hexo\themes\yilia\layout_partial\post目录下新增gitalk.ejs文件.<br> 代码如下:</p>
-<pre><code>&lt;div id=&quot;gitalk-container&quot; style=&quot;padding: 0px 30px 0px 30px;&quot;&gt;&lt;/div&gt; 
-&lt;link rel=&quot;stylesheet&quot; href=&quot;https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.css&quot;&gt;
-&lt;script src=&quot;https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js&quot;&gt;&lt;/script&gt;
-&lt;script type=&quot;text/javascript&quot; src=&quot;/md5.js&quot;&gt;&lt;/script&gt;
-&lt;script type=&quot;text/javascript&quot;&gt;
-
-if(&lt;%=theme.gitalk.enable%&gt;){
-    var gitalk = new Gitalk({
-      clientID: &apos;&lt;%=theme.gitalk.ClientID%&gt;&apos;,
-      clientSecret: &apos;&lt;%=theme.gitalk.ClientSecret%&gt;&apos;,
-      repo: &apos;&lt;%=theme.gitalk.repo%&gt;&apos;,
-      owner: &apos;&lt;%=theme.gitalk.githubID%&gt;&apos;,
-      admin: [&apos;&lt;%=theme.gitalk.adminUser%&gt;&apos;],
-      id: md5(location.href),
-      distractionFreeMode: &apos;&lt;%=theme.gitalk.distractionFreeMode%&gt;&apos;
-})
-gitalk.render(&apos;gitalk-container&apos;) 
-}
-&lt;/script&gt;
-</code></pre><p> 这是已经成功配置的代码.已经处理好了异常的问题.md5.js的代码请参照下篇博客</p>
-<p> <strong><a href="https://one-token.github.io/2019/05/25/Github%E4%B8%AA%E4%BA%BA%E5%8D%9A%E5%AE%A2%E6%90%AD%E5%BB%BA%E4%B8%AD%E9%81%87%E5%88%B0%E7%9A%84%E9%97%AE%E9%A2%98/"> Github个人博客搭建中遇到的问题</a></strong></p>
-<p> 后续的优化.可以将gittalk.min.js和gitalk.css文件下载下来放到自己博客中,以减少界面加载耗时.<br> gitalk下载地址: git clone <a href="https://github.com/gitalk/gitalk.git" target="_blank" rel="noopener">https://github.com/gitalk/gitalk.git</a></p>
-<p> b.在E:\hexo\themes\yilia\layout_partial\目录下找到article.ejs文件,在文件结尾增加以下代码</p>
-<pre><code> &lt;% if ( !index ){ %&gt;
- &lt;% if(theme.gitalk.enable){ %&gt;
-  &lt;%- partial(&apos;post/gitalk&apos;, {
-  key: post.slug,
-  title: post.title,
-  url: config.url+url_for(post.path)
-}) %&gt;
-  &lt;% } %&gt;
-  &lt;% } %&gt;
-</code></pre><p> 希望在博客主界面展示gitalk评论功能.可以将&lt;% if(!index ){ %&gt;&lt;% } %&gt; 去掉.</p>
-<p> c.在yilia目录下找到_config.yml文件.添加以下代码</p>
-<pre><code>#6、gitalk评论
-gitalk:
-  enable:  true
-  githubID:  one-token 
-  repo:  one-token.github.io
-  ClientID:  &apos;YourClientID&apos;
-  ClientSecret:  &apos;YourClientSecret&apos;
-  adminUser:  one-token 
-  distractionFreeMode: false
-</code></pre><p>   ClientID 和 ClientSecret 需要自行去github注册.</p>
-<p> d.打开<a href="https://github.com/settings/applications/new" target="_blank" rel="noopener">https://github.com/settings/applications/new</a>, 注册OAuth Apps</p>
-<p><img src="oauth_apps.png" alt><br>将获取到的 ClientID 和ClientSecret填写到配置中去</p>
-<h2 id="2-7-Git配置"><a href="#2-7-Git配置" class="headerlink" title="2.7 Git配置"></a>2.7 Git配置</h2><ul>
-<li><p>登录git</p>
-</li>
-<li><p>点击new 创建一个项目,填写后面的名字的时候，需要注意，名称必须为 你的github有户名.github.io,这个一定不能出错,然后点击Create repository,这样创建了一个空项目</p>
-</li>
-</ul>
-<ul>
-<li><p>接下来配置SSH,执行下列命令</p>
-<p>   ssh-keygen -t rsa -C “<a href="mailto:xxx@163.com" target="_blank" rel="noopener">xxx@163.com</a>“ </p>
-</li>
-</ul>
-<p>连续三次回车，会在 C:\Users\Administrator.ssh 有三个文件，打开id_rsa.pub文件，copy文件中的内容 </p>
-<ul>
-<li><p>点击Settings </p>
-</li>
-<li><p>点击 SSH and GPG Keys </p>
-</li>
-<li><p>点击 New SSH Key </p>
-</li>
-<li><p>将copy的内容copy到 Key 方框中 </p>
-</li>
-<li><p>点击 Add SSH Key </p>
-</li>
-<li><p>打开hexo目录下的_config.yml,找到deploy:</p>
-</li>
-</ul>
-<pre><code>deploy:
-
-      type: git
-
-      repo: git@github.com:one-token/one-token.github.io.git
-
-      branch: master
-</code></pre><p>重新编译部署</p>
-<p>然后再在浏览器输入</p>
-<blockquote>
-<p> <a href="https://one-token.github.io">https://one-token.github.io</a>,</p>
-</blockquote>
-<p>可以正常访问SSH就配置完了 </p>
-<h1 id="三-使用OpenMarkdown-编辑"><a href="#三-使用OpenMarkdown-编辑" class="headerlink" title="三. 使用OpenMarkdown 编辑"></a>三. 使用OpenMarkdown 编辑</h1><h2 id="设置默认MD文件编辑器"><a href="#设置默认MD文件编辑器" class="headerlink" title="设置默认MD文件编辑器"></a>设置默认MD文件编辑器</h2><p>我们下载好了OpenMarkdown2后希望新建layout时就自动打开OpenMarkDown进行内容编辑.</p>
-<p>在window10中我们写一段Js来实现这个需求.首先我们需要在<strong>Hexo文件夹下新建scripts</strong>文件夹</p>
-<p>新建一个<strong>auto_open.js</strong>文件.js的内容为</p>
-<pre><code>var spawn = require(&apos;child_process&apos;).exec;
-// Hexo 2.x 用户复制这段
-//hexo.on(&apos;new&apos;, function(path){
-//  spawn(&apos;start  &quot;markdown编辑器绝对路径.exe&quot; &apos; + path);
-//});
-//C:\MarkDown2\MarkdownPad2.exe 是MakdownPad编辑器在我本地的路径！
-// Hexo 3 用户复制这段
-hexo.on(&apos;new&apos;, function(data){
-  spawn(&apos;start  &quot;C:\MarkDown2\MarkdownPad2.exe&quot; &apos; + data.path);
-});
-</code></pre><p>其它操作系统的请自行搜索.</p>
-<h1 id="四-Markdown文件编辑"><a href="#四-Markdown文件编辑" class="headerlink" title="四. Markdown文件编辑"></a>四. Markdown文件编辑</h1><h2 id="4-1-添加标签"><a href="#4-1-添加标签" class="headerlink" title="4.1 添加标签"></a>4.1 添加标签</h2><p>用OpenMarkdown2打开md文件后可以通过配置项改单页面增加标签,tags即为配置当前页面标签</p>
-<pre><code>title: 添加标签文章页面
-date: 2019-05-24 07:03:53
-comments: true
-toc: true
-categories: tags
-tags:
-  - github个人博客搭建
-  - hexo
-  - yilia
-  - gittalk
-</code></pre><h2 id="4-2-开启目录导航"><a href="#4-2-开启目录导航" class="headerlink" title="4.2 开启目录导航"></a>4.2 开启目录导航</h2><p>参照4.1配置 <strong>toc: true</strong> 即可 </p>
-<h2 id="4-2-设置当前文章分类"><a href="#4-2-设置当前文章分类" class="headerlink" title="4.2 设置当前文章分类"></a>4.2 设置当前文章分类</h2><p>参照4.1配置 <strong>categories: tags</strong> 即可</p>
-<h2 id="4-3-开启文章打赏功能"><a href="#4-3-开启文章打赏功能" class="headerlink" title="4.3 开启文章打赏功能"></a>4.3 开启文章打赏功能</h2><p>配置文章 <strong>reward: true</strong><br>并打开theme下_config,yml.添加打赏二维码</p>
-<p>支付宝二维码图片地址，跟设置头像的方式一样。<br><strong>alipay: /assets/img/alipay.jpg</strong><br>微信二维码图片地址<br><strong>weixin: /assets/img/weixin.jpg</strong></p>
-<h2 id="4-4-文章添加图片"><a href="#4-4-文章添加图片" class="headerlink" title="4.4 文章添加图片"></a>4.4 文章添加图片</h2><p>将所用到的图片资源放到对应博客文章名称的文件夹中,然后使用<code>![](xxx.png)</code>将图片插入文章中.</p>
-<p>本文原始链接:  <a href="https://one-token.github.io/2019/05/24/OpenMarkdown/">https://one-token.github.io/2019/05/24/OpenMarkdown/</a></p>
-
+        <h1 id="一-搭建步骤"><a href="#一-搭建步骤" class="headerlink" title="一. 搭建步骤"></a>一. 搭建步骤</h1><p><strong>基础环境</strong><br> <strong> node </strong><br> <strong> git </strong><br>
+        
+          <a class="article-more-a" href="/2019/05/24/OpenMarkdown/#more">more >></a>
+        
       
 	  <!--版权声明-->
 			 
@@ -1450,7 +539,7 @@ tags:
 
 	  
       
-    </div>
+    </p></div>
     <div class="article-info article-info-index">
       
       
@@ -1458,10 +547,6 @@ tags:
 		<i class="icon-price-tags icon"></i>
 		<ul class="article-tag-list">
 			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">随笔</a>
-        		</li>
-      		 
         		<li class="article-tag-list-item">
         			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">github个人博客搭建</a>
         		</li>
@@ -1484,6 +569,10 @@ tags:
       		 
         		<li class="article-tag-list-item">
         			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">不蒜子</a>
+        		</li>
+      		 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">随笔</a>
         		</li>
       		
 		</ul>
@@ -1652,14 +741,6 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">Android 知识体系图谱</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">随笔</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">github个人博客搭建</a>
               </li>
              
@@ -1680,11 +761,19 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">Handler通讯机制</a>
+                <a href="javascript:void(0)" class="js-tag color4">不蒜子</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">不蒜子</a>
+                <a href="javascript:void(0)" class="js-tag color3">随笔</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">Android 知识体系图谱</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">Handler通讯机制</a>
               </li>
             
             <div class="clearfix"></div>
