@@ -9,7 +9,7 @@
   <title>Handler机制原理详解 | 二维世界</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   <meta name="description" content="前言  Handler对于开发者来说都不陌生,但是那么它到底为什么而产生.又解决了那些问题呢?带着这些疑问来解读Handler通讯的机制.站在Android系统整体角度来分析Handler源码的实现原理.  Android 的显示屏幕是以60Hz/s来刷新的,相当于加载每一帧的时间为16ms,在Android系统每隔16ms就会发出一次VSYNC信号对UI界面进行渲染,我们必须要保证我们的UI线程">
-<meta name="keywords" content="Android源码,Handler通讯机制">
+<meta name="keywords" content="Handler通讯机制,Android源码">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Handler机制原理详解">
 <meta property="og:url" content="https://one-token.github.io/2019/06/02/Handler机制原理详解/index.html">
@@ -18,7 +18,7 @@
 <meta property="og:locale" content="zh-CN">
 <meta property="og:image" content="https://one-token.github.io/2019/06/02/Handler机制原理详解/handler机制.png">
 <meta property="og:image" content="https://one-token.github.io/2019/06/02/Handler机制原理详解/Handler交互流程.jpg">
-<meta property="og:updated_time" content="2019-06-01T23:40:59.048Z">
+<meta property="og:updated_time" content="2019-06-02T06:43:28.441Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Handler机制原理详解">
 <meta name="twitter:description" content="前言  Handler对于开发者来说都不陌生,但是那么它到底为什么而产生.又解决了那些问题呢?带着这些疑问来解读Handler通讯的机制.站在Android系统整体角度来分析Handler源码的实现原理.  Android 的显示屏幕是以60Hz/s来刷新的,相当于加载每一帧的时间为16ms,在Android系统每隔16ms就会发出一次VSYNC信号对UI界面进行渲染,我们必须要保证我们的UI线程">
@@ -75,7 +75,7 @@ var _hmt = _hmt || [];
 			
 				<li><a href="/">主页</a></li>
 	        
-				<li><a href="/archives">分类</a></li>
+				<li><a href="/archives">归档</a></li>
 	        
 				<li><a href="/photos">相册</a></li>
 	        
@@ -165,7 +165,7 @@ var _hmt = _hmt || [];
 				
 					<li style="width: 25%"><a href="/">主页</a></li>
 		        
-					<li style="width: 25%"><a href="/archives">分类</a></li>
+					<li style="width: 25%"><a href="/archives">归档</a></li>
 		        
 					<li style="width: 25%"><a href="/photos">相册</a></li>
 		        
@@ -586,28 +586,17 @@ public void dispatchMessage(Message msg) {
 		<ul class="article-tag-list">
 			 
         		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color5">Android源码</a>
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color2">Handler通讯机制</a>
         		</li>
       		 
         		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color2">Handler通讯机制</a>
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color5">Android源码</a>
         		</li>
       		
 		</ul>
 	</div>
 
       
-	<div class="article-category tagcloud">
-		<i class="icon-book icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="/categories/categories-分类//" class="article-tag-list-link color2">/categories //分类</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
 
       
 
@@ -856,14 +845,6 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
           <ul class="article-tag-list" q-show="showTags">
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">博客模板</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">Android源码</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">Android 知识体系图谱</a>
               </li>
              
@@ -896,7 +877,15 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">Android源码</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">不蒜子</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">博客模板</a>
               </li>
             
             <div class="clearfix"></div>
