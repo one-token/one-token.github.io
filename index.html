@@ -198,7 +198,7 @@ var _hmt = _hmt || [];
     <div class="article-entry" itemprop="articleBody">
       
         <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>  Handler对于开发者来说都不陌生,但是那么它到底为什么而产生.又解决了那些问题呢?带着这些疑问来解读Handler通讯的机制.站在Android系统整体角度来分析Handler源码的实现原理.</p>
-<p> Android 的显示屏幕是以60Hz/s来刷新的,相当于加载每一帧的时间为16ms,在Android系统每隔16ms就会发出一次VSYNC信号对UI界面进行渲染,我们必须要保证我们的UI线程的代码在16ms内执行完毕,否则就会产生丢帧现象,导致界面卡顿.<strong>    为了保证UI线程在16ms内执行完毕,那么就要必须要将耗时的操作放到子线程中执行.为了解决UI线程与子线程之间信息交互传递的问题,就产生了Handler通讯机制. </strong><br>
+<p> Android 的显示屏幕是以60Hz/s来刷新的,相当于加载每一帧的时间为16ms,系统会每隔16ms发出一次VSYNC信号对UI界面进行渲染,我们必须要保证我们的UI线程的代码在16ms内执行完毕,否则就会产生丢帧现象,导致界面卡顿.<strong>    为了保证UI线程在16ms内执行完毕,那么就必须要将耗时的操作放到子线程中执行.为了解决UI线程与子线程之间信息交互传递的问题,就产生了Handler通讯机制. </strong><br>
         
           <a class="article-more-a" href="/2019/06/02/Handler机制原理详解/#more">more >></a>
         
@@ -220,11 +220,11 @@ var _hmt = _hmt || [];
 		<ul class="article-tag-list">
 			 
         		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color5">Android源码</a>
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color2">Handler通讯机制</a>
         		</li>
       		 
         		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color2">Handler通讯机制</a>
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color5">Android源码</a>
         		</li>
       		
 		</ul>
